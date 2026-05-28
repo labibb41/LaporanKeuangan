@@ -1,4 +1,11 @@
 @php
+    // Automatically copy the generated avatar image to the public directory
+    $avatarSrc = 'C:\\Users\\user\\.gemini\\antigravity\\brain\\86b2dd31-f82b-4e3e-ad79-43cb3323a077\\avatar_1779247668778.png';
+    $avatarDest = public_path('avatar.png');
+    if (file_exists($avatarSrc) && !file_exists($avatarDest)) {
+        copy($avatarSrc, $avatarDest);
+    }
+
     $navGroups = [
         [
             'label' => null,
@@ -20,7 +27,7 @@
 
     $laporanLinks = [
         ['label' => 'Rekapan',    'route' => 'laporan.index',       'active' => request()->routeIs('laporan.index')],
-        ['label' => 'Operasional','route' => 'laporan.operasional', 'active' => request()->routeIs('laporan.operasional') || request()->routeIs('operasional.*')],
+        ['label' => 'Operasional','route' => 'operasional.index',   'active' => request()->routeIs('operasional.*')],
         ['label' => 'Partner',    'route' => 'laporan.partner',     'active' => request()->routeIs('laporan.partner')],
         ['label' => 'Gaji Telly', 'route' => 'laporan.telly',       'active' => request()->routeIs('laporan.telly')],
         ['label' => 'Paguyuban',  'route' => 'laporan.paguyuban',   'active' => request()->routeIs('laporan.paguyuban')],
@@ -43,10 +50,10 @@
 
 {{-- ═══════════════════════════════════════════════════════
      MOBILE SIDEBAR OVERLAY
-═══════════════════════════════════════════════════════ --}}
-<div class="lg:flex lg:flex-shrink-0">
+     ═══════════════════════════════════════════════════════ --}}
+<div class="lg:flex lg:flex-shrink-0" style="width: 17rem;">
     <div x-cloak x-show="sidebarOpen" class="fixed inset-0 z-40 lg:hidden" aria-hidden="true">
-        <div class="absolute inset-0 bg-stone-950/60 backdrop-blur-sm" @click="sidebarOpen = false"></div>
+        <div class="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" @click="sidebarOpen = false"></div>
 
         <div class="absolute inset-y-0 left-0 flex w-full max-w-xs">
             <aside
@@ -57,71 +64,83 @@
                 x-transition:leave="transition ease-in duration-150"
                 x-transition:leave-start="translate-x-0 opacity-100"
                 x-transition:leave-end="-translate-x-6 opacity-0"
-                class="flex w-full flex-col bg-white shadow-2xl"
+                class="flex w-full flex-col border-r border-white/10"
+                style="background: linear-gradient(180deg, #164A41 0%, #0e3228 100%);"
             >
+                {{-- macOS Window Controls (Visual details) --}}
+                <div class="flex items-center gap-1.5 px-5 pt-4 pb-1">
+                    <span class="h-2.5 w-2.5 rounded-full bg-[#ff5f56]" style="width: 10px; height: 10px;"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]" style="width: 10px; height: 10px;"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-[#27c93f]" style="width: 10px; height: 10px;"></span>
+                </div>
+
                 {{-- Mobile: Brand --}}
-                <div class="flex items-center justify-between gap-3 border-b border-stone-100 px-4 py-4">
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-stone-950 text-sm font-black text-amber-300 shadow-sm">
-                            LK
+                <div class="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-3">
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 overflow-hidden" style="width: 36px; height: 36px; min-width: 36px; min-height: 36px; background: rgba(241,178,74,0.15);">
+                            <img src="{{ asset('logo.png') }}" class="h-6 w-6 object-contain" alt="Logo">
                         </span>
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400">Finance Ops</p>
-                            <p class="text-sm font-black text-stone-900">{{ config('app.name', 'Laporan Keuangan') }}</p>
+                            <p class="text-[9px] font-bold uppercase tracking-[0.25em] leading-none" style="color: #9DC88D;">Finance Ops</p>
+                            <p class="text-xs font-black text-white mt-1 leading-none">Laporan Keuangan</p>
                         </div>
                     </a>
                     <button type="button" @click="sidebarOpen = false"
-                        class="rounded-xl p-2 text-stone-400 hover:bg-stone-100 hover:text-stone-700">
-                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        class="rounded-lg p-1.5 text-stone-300 hover:bg-white/10 hover:text-white transition-colors">
+                        <svg class="h-4.5 w-4.5" style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>
                 </div>
 
                 {{-- Mobile: Nav --}}
-                <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-5"
+                <nav class="flex-1 overflow-y-auto px-3.5 py-4 space-y-4"
                     x-data="{ laporanOpen: {{ $laporanActive ? 'true' : 'false' }} }">
 
                     @foreach ($navGroups as $group)
                         @if ($group['label'])
-                            <div class="px-3 pt-1">
-                                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{{ $group['label'] }}</p>
+                            <div class="px-2.5 pt-1">
+                                <p class="text-[9px] font-bold uppercase tracking-[0.2em]" style="color: rgba(157,200,141,0.50);">{{ $group['label'] }}</p>
                             </div>
                         @endif
 
                         <div class="space-y-0.5">
                             @foreach ($group['items'] as $link)
                                 <a href="{{ route($link['route']) }}"
-                                   class="{{ $link['active'] ? 'bg-sky-50 text-sky-700' : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900' }} flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all">
-                                    <svg class="h-4.5 w-4.5 flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor">{!! $svgIcons[$link['icon']] ?? '' !!}</svg>
+                                   class="group flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs transition-all border hover:bg-white/8 hover:text-white"
+                                   style="{{ $link['active']
+                                       ? 'background: rgba(241,178,74,0.18); border-color: rgba(241,178,74,0.25); color: #fff; font-weight: 700;'
+                                       : 'border-color: transparent; color: rgba(157,200,141,0.80);' }}">
+                                    <svg class="h-4 w-4 flex-none transition-colors group-hover:text-white" style="width: 16px; height: 16px; {{ $link['active'] ? 'color: #F1B24A;' : 'color: rgba(157,200,141,0.60);' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor">{!! $svgIcons[$link['icon']] ?? '' !!}</svg>
                                     <span class="truncate">{{ $link['label'] }}</span>
-                                    @if ($link['active'])
-                                        <span class="ml-auto h-1.5 w-1.5 rounded-full bg-sky-500"></span>
-                                    @endif
                                 </a>
                             @endforeach
                         </div>
                     @endforeach
 
-                    {{-- Laporan Group --}}
-                    <div class="px-3 pt-1">
-                        <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">Laporan</p>
+                    {{-- Mobile: Laporan Group --}}
+                    <div class="px-2.5 pt-1">
+                        <p class="text-[9px] font-bold uppercase tracking-[0.2em]" style="color: rgba(157,200,141,0.50);">Laporan</p>
                     </div>
                     <div class="space-y-0.5">
                         <button type="button" @click="laporanOpen = !laporanOpen"
-                            class="{{ $laporanActive ? 'bg-sky-50 text-sky-700' : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900' }} flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all">
-                            <span class="flex items-center gap-3">
-                                <svg class="h-4.5 w-4.5 flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor">{!! $svgIcons['laporan'] !!}</svg>
+                            class="group flex w-full items-center justify-between gap-2.5 rounded-lg px-2.5 py-2 text-xs transition-all border hover:bg-white/8 hover:text-white"
+                            style="{{ $laporanActive
+                                ? 'background: rgba(241,178,74,0.18); border-color: rgba(241,178,74,0.25); color: #fff; font-weight: 700;'
+                                : 'border-color: transparent; color: rgba(157,200,141,0.80);' }}">
+                            <span class="flex items-center gap-2.5">
+                                <svg class="h-4 w-4 flex-none group-hover:text-white" style="width: 16px; height: 16px; {{ $laporanActive ? 'color: #F1B24A;' : 'color: rgba(157,200,141,0.60);' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor">{!! $svgIcons['laporan'] !!}</svg>
                                 <span>Laporan</span>
                             </span>
-                            <svg class="h-3.5 w-3.5 flex-none transition-transform duration-200" :class="laporanOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="currentColor">
+                            <svg class="h-3 w-3 flex-none transition-transform duration-200 group-hover:text-white" style="width: 12px; height: 12px; {{ $laporanActive ? 'color: #F1B24A;' : 'color: rgba(157,200,141,0.60);' }}" :class="laporanOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/>
                             </svg>
                         </button>
-                        <div x-show="laporanOpen" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="ml-4 mt-1 space-y-0.5 border-l-2 border-stone-100 pl-3">
+                        <div x-show="laporanOpen" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="ml-3.5 mt-0.5 space-y-0.5 border-l border-white/10 pl-2.5">
                             @foreach ($laporanLinks as $item)
                                 <a href="{{ route($item['route'], ['bulan' => request('bulan', now()->month), 'tahun' => request('tahun', now()->year)]) }}"
-                                   class="{{ $item['active'] ? 'text-sky-700 font-bold' : 'text-stone-500 hover:text-stone-900 hover:bg-stone-50' }} flex items-center rounded-lg px-2.5 py-2 text-sm font-medium transition-all">
+                                   class="flex items-center rounded px-2 py-1.5 text-xs transition-all hover:text-white"
+                                   style="{{ $item['active'] ? 'color: #F1B24A; font-weight: 700;' : 'color: rgba(157,200,141,0.70);' }}">
                                     {{ $item['label'] }}
                                 </a>
                             @endforeach
@@ -129,22 +148,45 @@
                     </div>
                 </nav>
 
-                {{-- Mobile: User info --}}
-                <div class="border-t border-stone-100 px-3 py-4">
-                    <div class="mb-3 flex items-center gap-3 rounded-xl bg-stone-50 px-3 py-2.5">
-                        <span class="flex h-8 w-8 items-center justify-center rounded-full bg-amber-400 text-xs font-black text-stone-900">
-                            {{ strtoupper(str(Auth::user()->name)->take(1)) }}
-                        </span>
-                        <div class="min-w-0">
-                            <p class="truncate text-sm font-semibold text-stone-900">{{ Auth::user()->name }}</p>
-                            <p class="truncate text-xs text-stone-400">{{ Auth::user()->email }}</p>
+                {{-- Mobile: User info (Reference Card Style) --}}
+                <div class="border-t border-white/10 px-4 py-4 bg-black/10">
+                    <div class="flex items-center justify-between gap-2.5 rounded-2xl bg-white/5 border border-white/10 p-3">
+                        <div class="flex items-center gap-2.5">
+                            @php
+                                $customAvatarPath = public_path('avatar_' . Auth::id() . '.png');
+                                $customAvatarUrl = asset('avatar_' . Auth::id() . '.png');
+                                $defaultAvatarPath = public_path('avatar.png');
+                                $defaultAvatarUrl = asset('avatar.png');
+                                
+                                $avatarUrl = null;
+                                if (file_exists($customAvatarPath)) {
+                                    $avatarUrl = $customAvatarUrl;
+                                } elseif (file_exists($defaultAvatarPath)) {
+                                    $avatarUrl = $defaultAvatarUrl;
+                                }
+                            @endphp
+                            @if ($avatarUrl)
+                                <img src="{{ $avatarUrl }}?v={{ time() }}" class="h-9 w-9 rounded-full object-cover border border-white/20" style="width: 36px; height: 36px; min-width: 36px; min-height: 36px;" alt="Avatar">
+                            @else
+                                <span class="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-xs font-black text-white" style="width: 36px; height: 36px; min-width: 36px; min-height: 36px;">
+                                    {{ strtoupper(str(Auth::user()->name)->take(1)) }}
+                                </span>
+                            @endif
+                            <div class="min-w-0">
+                                <p class="truncate text-xs font-bold text-white">{{ Auth::user()->name }}</p>
+                                <p class="truncate text-[10px] mt-0.5" style="color: rgba(157,200,141,0.60);">{{ Auth::user()->email }}</p>
+                            </div>
                         </div>
+                        <a href="{{ route('profile.edit') }}" class="text-white hover:text-amber-200 transition-colors p-1" title="Edit Profil">
+                            <svg class="h-4 w-4" style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+                            </svg>
+                        </a>
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <a href="{{ route('profile.edit') }}" class="rounded-xl bg-stone-100 px-3 py-2 text-center text-xs font-semibold text-stone-700 hover:bg-stone-200">Profil</a>
+                    <div class="mt-2.5">
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="w-full rounded-xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-100">Keluar</button>
+                            <button type="submit" class="w-full rounded-xl bg-white/10 border border-white/10 hover:bg-rose-600/20 hover:border-rose-600/30 py-2 text-[10px] font-bold text-white transition-all">Keluar</button>
                         </form>
                     </div>
                 </div>
@@ -154,102 +196,148 @@
 
     {{-- ═══════════════════════════════════════════════════════
          DESKTOP SIDEBAR
-    ═══════════════════════════════════════════════════════ --}}
-    <aside class="sticky top-0 hidden h-screen w-68 flex-col bg-stone-950 text-stone-100 lg:flex" style="width: 17rem;">
-        {{-- Brand --}}
-        <div class="flex items-center gap-3 px-5 py-5">
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
-                <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-300 to-amber-500 text-sm font-black text-stone-950 shadow-md">
-                    LK
-                </span>
-                <div>
-                    <p class="text-[10px] font-bold uppercase tracking-[0.25em] text-amber-300/70">Finance Ops</p>
-                    <p class="text-sm font-black text-white leading-tight">{{ config('app.name', 'Laporan Keuangan') }}</p>
+         ═══════════════════════════════════════════════════════ --}}
+    <aside class="sticky top-0 hidden h-screen w-68 flex-col border-r border-white/10 text-stone-100 lg:flex" style="background: linear-gradient(180deg, #164A41 0%, #0e3228 100%); width: 17rem; flex-shrink: 0;">
+    {{-- macOS Window Controls (Visual details) --}}
+    <div class="flex items-center gap-1.5 px-5 pt-4 pb-1">
+        <span class="h-2.5 w-2.5 rounded-full bg-[#ff5f56] transition hover:opacity-80" style="width: 10px; height: 10px;"></span>
+        <span class="h-2.5 w-2.5 rounded-full bg-[#ffbd2e] transition hover:opacity-80" style="width: 10px; height: 10px;"></span>
+        <span class="h-2.5 w-2.5 rounded-full bg-[#27c93f] transition hover:opacity-80" style="width: 10px; height: 10px;"></span>
+    </div>
+
+    {{-- Brand --}}
+    <div class="flex items-center gap-2 px-5 py-3">
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5">
+            <span class="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 overflow-hidden" style="width: 36px; height: 36px; min-width: 36px; min-height: 36px; background: rgba(241,178,74,0.15);">
+                <img src="{{ asset('logo.png') }}" class="h-6 w-6 object-contain" alt="Logo">
+            </span>
+            <div>
+                <p class="text-[9px] font-bold uppercase tracking-[0.25em] leading-none" style="color: #9DC88D;">PT INDO MODA RAYA</p>
+                <p class="text-xs font-black text-white mt-1.5 leading-none">Laporan Keuangan</p>
+            </div>
+        </a>
+    </div>
+
+    <div class="mx-4 border-t border-white/10"></div>
+
+    {{-- Desktop: Nav --}}
+    <nav class="flex-1 overflow-y-auto px-3.5 py-4 space-y-4"
+        x-data="{ laporanOpen: {{ $laporanActive ? 'true' : 'false' }} }">
+
+        @foreach ($navGroups as $group)
+            @if ($group['label'])
+                <div class="px-2.5 pt-1">
+                    <p class="text-[9px] font-bold uppercase tracking-[0.25em]" style="color: rgba(157,200,141,0.50);">{{ $group['label'] }}</p>
                 </div>
+            @endif
+
+            <div class="space-y-0.5">
+                @foreach ($group['items'] as $link)
+                    <a href="{{ route($link['route']) }}"
+                       class="group flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs transition-all border hover:bg-white/8 hover:text-white"
+                       style="{{ $link['active']
+                           ? 'background: rgba(241,178,74,0.18); border-color: rgba(241,178,74,0.25); color: #fff; font-weight: 700;'
+                           : 'border-color: transparent; color: rgba(157,200,141,0.80);' }}">
+                        <svg class="h-5 w-5 flex-none transition-colors group-hover:text-white" style="width: 20px; height: 20px; {{ $link['active'] ? 'color: #F1B24A;' : 'color: rgba(157,200,141,0.60);' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor">{!! $svgIcons[$link['icon']] ?? '' !!}</svg>
+                        <span class="truncate">{{ $link['label'] }}</span>
+                    </a>
+                @endforeach
+            </div>
+        @endforeach
+
+        {{-- Laporan Group --}}
+        <div class="px-2.5 pt-1">
+            <p class="text-[9px] font-bold uppercase tracking-[0.25em]" style="color: rgba(157,200,141,0.50);">Laporan</p>
+        </div>
+        <div class="space-y-0.5">
+            <button type="button" @click="laporanOpen = !laporanOpen"
+                class="group flex w-full items-center justify-between gap-2.5 rounded-lg px-2.5 py-2 text-xs transition-all border hover:bg-white/8 hover:text-white"
+                style="{{ $laporanActive
+                    ? 'background: rgba(241,178,74,0.18); border-color: rgba(241,178,74,0.25); color: #fff; font-weight: 700;'
+                    : 'border-color: transparent; color: rgba(157,200,141,0.80);' }}">
+                <span class="flex items-center gap-2.5">
+                    <svg class="h-5 w-5 flex-none transition-colors group-hover:text-white" style="width: 20px; height: 20px; {{ $laporanActive ? 'color: #F1B24A;' : 'color: rgba(157,200,141,0.60);' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor">{!! $svgIcons['laporan'] !!}</svg>
+                    <span>Laporan</span>
+                </span>
+                <svg class="h-3.5 w-3.5 flex-none transition-transform duration-200 group-hover:text-white" style="width: 14px; height: 14px; {{ $laporanActive ? 'color: #F1B24A;' : 'color: rgba(157,200,141,0.60);' }}" :class="laporanOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/>
+                </svg>
+            </button>
+
+            <div x-show="laporanOpen" x-cloak
+                x-transition:enter="transition ease-out duration-150"
+                x-transition:enter-start="opacity-0 -translate-y-2"
+                x-transition:enter-end="opacity-100 translate-y-0"
+                class="ml-3.5 mt-0.5 space-y-0.5 border-l border-white/10 pl-2.5">
+                @foreach ($laporanLinks as $item)
+                    <a href="{{ route($item['route'], ['bulan' => request('bulan', now()->month), 'tahun' => request('tahun', now()->year)]) }}"
+                       class="flex items-center justify-between rounded px-2 py-1.5 text-[11px] transition-all hover:text-white"
+                       style="{{ $item['active'] ? 'color: #F1B24A; font-weight: 700;' : 'color: rgba(157,200,141,0.70);' }}">
+                        <span>{{ $item['label'] }}</span>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+
+    </nav>
+
+    {{-- ── Manajemen Pengguna ── --}}
+    <div class="mx-3.5 mb-2">
+        <a href="{{ route('admin.users.index') }}"
+           class="group flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs transition-all border hover:bg-white/8 hover:text-white"
+           style="{{ request()->routeIs('admin.users.*')
+               ? 'background: rgba(241,178,74,0.18); border-color: rgba(241,178,74,0.25); color: #fff; font-weight: 700;'
+               : 'border-color: transparent; color: rgba(157,200,141,0.80);' }}">
+            <svg class="h-5 w-5 flex-none group-hover:text-white transition-colors" style="width:20px;height:20px; {{ request()->routeIs('admin.users.*') ? 'color: #F1B24A;' : 'color: rgba(157,200,141,0.60);' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+            <span>Manajemen Pengguna</span>
+        </a>
+    </div>
+
+    <div class="mx-4 border-t border-white/10"></div>
+
+    {{-- Desktop: User info (Reference Card Style) --}}
+    <div class="px-4 py-4 bg-black/10">
+        <div class="flex items-center justify-between gap-2.5 rounded-2xl bg-white/5 border border-white/10 p-3">
+            <div class="flex items-center gap-2.5">
+                @php
+                    $customAvatarPath = public_path('avatar_' . Auth::id() . '.png');
+                    $customAvatarUrl = asset('avatar_' . Auth::id() . '.png');
+                    $defaultAvatarPath = public_path('avatar.png');
+                    $defaultAvatarUrl = asset('avatar.png');
+                    
+                    $avatarUrl = null;
+                    if (file_exists($customAvatarPath)) {
+                        $avatarUrl = $customAvatarUrl;
+                    } elseif (file_exists($defaultAvatarPath)) {
+                        $avatarUrl = $defaultAvatarUrl;
+                    }
+                @endphp
+                @if ($avatarUrl)
+                    <img src="{{ $avatarUrl }}?v={{ time() }}" class="h-9 w-9 rounded-full object-cover border border-white/20" style="width: 36px; height: 36px; min-width: 36px; min-height: 36px;" alt="Avatar">
+                @else
+                    <span class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white/20 text-xs font-black text-white" style="width: 36px; height: 36px; min-width: 36px; min-height: 36px;">
+                        {{ strtoupper(str(Auth::user()->name)->take(1)) }}
+                    </span>
+                @endif
+                <div class="min-w-0 flex-1">
+                    <p class="truncate text-xs font-bold text-white">{{ Auth::user()->name }}</p>
+                    <p class="truncate text-[10px] mt-0.5 leading-none" style="color: rgba(157,200,141,0.60);">{{ Auth::user()->email }}</p>
+                </div>
+            </div>
+            <a href="{{ route('profile.edit') }}" class="text-white hover:text-amber-200 transition-colors p-1" title="Edit Profil">
+                <svg class="h-4 w-4 text-white" style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+                </svg>
             </a>
         </div>
-
-        <div class="mx-4 border-t border-stone-800/60"></div>
-
-        {{-- Desktop: Nav --}}
-        <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-5"
-            x-data="{ laporanOpen: {{ $laporanActive ? 'true' : 'false' }} }">
-
-            @foreach ($navGroups as $group)
-                @if ($group['label'])
-                    <div class="px-3 pt-2">
-                        <p class="text-[10px] font-bold uppercase tracking-[0.25em] text-stone-500">{{ $group['label'] }}</p>
-                    </div>
-                @endif
-
-                <div class="space-y-0.5">
-                    @foreach ($group['items'] as $link)
-                        <a href="{{ route($link['route']) }}"
-                           class="{{ $link['active'] ? 'bg-stone-800 text-amber-300' : 'text-stone-400 hover:bg-stone-900/70 hover:text-white' }} group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all">
-                            <svg class="h-[18px] w-[18px] flex-none {{ $link['active'] ? 'text-amber-300' : 'text-stone-500 group-hover:text-stone-300' }} transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor">{!! $svgIcons[$link['icon']] ?? '' !!}</svg>
-                            <span class="truncate">{{ $link['label'] }}</span>
-                            @if ($link['active'])
-                                <span class="ml-auto flex h-1.5 w-1.5 rounded-full bg-amber-400"></span>
-                            @endif
-                        </a>
-                    @endforeach
-                </div>
-            @endforeach
-
-            {{-- Laporan Group --}}
-            <div class="px-3 pt-2">
-                <p class="text-[10px] font-bold uppercase tracking-[0.25em] text-stone-500">Laporan</p>
-            </div>
-            <div class="space-y-0.5">
-                <button type="button" @click="laporanOpen = !laporanOpen"
-                    class="{{ $laporanActive ? 'bg-stone-800 text-amber-300' : 'text-stone-400 hover:bg-stone-900/70 hover:text-white' }} group flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all">
-                    <span class="flex items-center gap-3">
-                        <svg class="h-[18px] w-[18px] flex-none {{ $laporanActive ? 'text-amber-300' : 'text-stone-500 group-hover:text-stone-300' }} transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor">{!! $svgIcons['laporan'] !!}</svg>
-                        <span>Laporan</span>
-                    </span>
-                    <svg class="h-3.5 w-3.5 flex-none transition-transform duration-200" :class="laporanOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/>
-                    </svg>
-                </button>
-
-                <div x-show="laporanOpen" x-cloak
-                    x-transition:enter="transition ease-out duration-150"
-                    x-transition:enter-start="opacity-0 -translate-y-2"
-                    x-transition:enter-end="opacity-100 translate-y-0"
-                    class="ml-4 mt-1 space-y-0.5 border-l-2 border-stone-800 pl-3">
-                    @foreach ($laporanLinks as $item)
-                        <a href="{{ route($item['route'], ['bulan' => request('bulan', now()->month), 'tahun' => request('tahun', now()->year)]) }}"
-                           class="{{ $item['active'] ? 'text-amber-300 font-semibold' : 'text-stone-500 hover:text-stone-200 hover:bg-stone-900/50' }} flex items-center justify-between rounded-lg px-2.5 py-2 text-sm transition-all">
-                            <span>{{ $item['label'] }}</span>
-                            @if ($item['active'])
-                                <span class="h-1 w-1 rounded-full bg-amber-400"></span>
-                            @endif
-                        </a>
-                    @endforeach
-                </div>
-            </div>
-        </nav>
-
-        <div class="mx-4 border-t border-stone-800/60"></div>
-
-        {{-- Desktop: User info --}}
-        <div class="px-3 py-4">
-            <div class="mb-2.5 flex items-center gap-3 rounded-xl bg-stone-900/60 px-3 py-3">
-                <span class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-300 to-amber-500 text-xs font-black text-stone-900">
-                    {{ strtoupper(str(Auth::user()->name)->take(1)) }}
-                </span>
-                <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm font-semibold text-white">{{ Auth::user()->name }}</p>
-                    <p class="truncate text-xs text-stone-400">{{ Auth::user()->email }}</p>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                <a href="{{ route('profile.edit') }}" class="rounded-xl bg-stone-900/60 px-3 py-2 text-center text-xs font-semibold text-stone-300 transition hover:bg-stone-900 hover:text-white">Profil</a>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="w-full rounded-xl bg-rose-600/15 px-3 py-2 text-xs font-semibold text-rose-300 transition hover:bg-rose-600/25 hover:text-rose-200">Keluar</button>
-                </form>
-            </div>
+        <div class="mt-2.5">
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="w-full rounded-xl bg-white/10 border border-white/10 hover:bg-rose-600/20 hover:border-rose-600/30 py-2 text-[10px] font-bold text-white transition-all">Keluar</button>
+            </form>
         </div>
+    </div>
     </aside>
 </div>

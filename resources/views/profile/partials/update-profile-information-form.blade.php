@@ -13,9 +13,45 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6" enctype="multipart/form-data">
         @csrf
         @method('patch')
+
+        {{-- Profile Photo Upload Block --}}
+        <div class="space-y-2">
+            <label for="avatar" class="block text-xs font-semibold text-stone-700">Foto Profil</label>
+            <div class="flex items-center gap-4">
+                @php
+                    $customAvatarPath = public_path('avatar_' . $user->id . '.png');
+                    $customAvatarUrl = asset('avatar_' . $user->id . '.png');
+                    $defaultAvatarPath = public_path('avatar.png');
+                    $defaultAvatarUrl = asset('avatar.png');
+                    
+                    $avatarUrl = null;
+                    if (file_exists($customAvatarPath)) {
+                        $avatarUrl = $customAvatarUrl;
+                    } elseif (file_exists($defaultAvatarPath)) {
+                        $avatarUrl = $defaultAvatarUrl;
+                    }
+                @endphp
+                
+                @if ($avatarUrl)
+                    <img src="{{ $avatarUrl }}?v={{ time() }}" class="h-16 w-16 rounded-full object-cover border-2 border-blue-100 shadow-sm" style="width: 64px; height: 64px;" alt="Avatar Current">
+                @else
+                    <span class="flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-xl font-black text-blue-600 border-2 border-blue-100 shadow-sm" style="width: 64px; height: 64px;">
+                        {{ strtoupper(str($user->name)->take(1)) }}
+                    </span>
+                @endif
+                
+                <div class="flex-1">
+                    <input type="file" id="avatar" name="avatar" accept="image/*" class="w-full text-xs text-stone-500 file:mr-4 file:py-1.5 file:px-3.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all cursor-pointer">
+                    <p class="mt-1 text-[10px] text-stone-400">Pilih gambar JPEG, PNG atau JPG (maksimal 2MB).</p>
+                </div>
+            </div>
+            @error('avatar')
+                <p class="mt-1 text-[10px] text-rose-600 font-semibold">{{ $message }}</p>
+            @enderror
+        </div>
 
         <div>
             <x-input-label for="name" :value="__('Name')" />

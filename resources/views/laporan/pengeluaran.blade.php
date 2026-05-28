@@ -7,17 +7,18 @@
     </x-slot>
 
     @php($rupiah = fn ($nilai) => 'Rp ' . number_format((float) $nilai, 0, ',', '.'))
+    @php($bulanList = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'])
 
     <section class="card space-y-6">
         @include('laporan._toolbar')
 
-        <div class="rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
+        <div class="rounded-xl border border-slate-200/50 bg-slate-50/60 p-5">
             <div class="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-stone-500">{{ $formPengeluaran ? 'Edit Pengeluaran' : 'Input Pengeluaran' }}</p>
-                    <h3 class="mt-2 text-xl font-black text-stone-950">{{ $formPengeluaran ? 'Perbarui data pengeluaran' : 'Isi data pengeluaran' }}</h3>
+                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">{{ $formPengeluaran ? 'Edit Pengeluaran' : 'Input Pengeluaran' }}</p>
+                    <h3 class="mt-2 text-xl font-black text-slate-900">{{ $formPengeluaran ? 'Perbarui data pengeluaran' : 'Isi data pengeluaran' }}</h3>
                 </div>
-                <span class="rounded-full bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700">{{ $rupiah($total) }}</span>
+                <span class="rounded-full bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700">Total Periode: {{ $rupiah($total) }}</span>
             </div>
 
             <form method="POST" action="{{ $formPengeluaran ? route('pengeluaran.update', $formPengeluaran) : route('pengeluaran.store') }}" class="mt-6 space-y-5">
@@ -95,11 +96,25 @@
                             </tr>
                         @endforelse
                     </tbody>
+                    @if ($pengeluaran->isNotEmpty())
+                        <tfoot class="bg-stone-50 border-t border-stone-200">
+                            <tr>
+                                <th class="px-4 py-4 text-left font-bold uppercase tracking-widest text-stone-600" colspan="3">TOTAL KESELURUHAN BULAN {{ strtoupper($bulanList[$bulan - 1]) }} TAHUN {{ $tahun }}</th>
+                                <th class="px-4 py-4 text-left font-black text-rose-700 text-base" colspan="4">{{ $rupiah($total) }}</th>
+                            </tr>
+                        </tfoot>
+                    @endif
                 </table>
             </div>
 
-            <div class="mt-4">
-                {{ $pengeluaran->links() }}
+            <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    {{ $pengeluaran->links() }}
+                </div>
+                <a href="{{ route('laporan.pengeluaran.cetak', ['bulan' => $bulan, 'tahun' => $tahun]) }}" target="_blank" class="btn-primary">
+                    <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    Cetak Laporan PDF
+                </a>
             </div>
         </div>
     </section>

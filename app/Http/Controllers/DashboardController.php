@@ -50,7 +50,7 @@ class DashboardController extends Controller
 
         $menuLaporan = [
             ['label' => 'Pusat laporan', 'route' => route('laporan.index')],
-            ['label' => 'Laporan operasional', 'route' => route('laporan.operasional', ['bulan' => $bulan, 'tahun' => $tahun])],
+            ['label' => 'Laporan operasional', 'route' => route('operasional.index', ['bulan' => $bulan, 'tahun' => $tahun])],
             ['label' => 'Laporan partner', 'route' => route('laporan.partner', ['bulan' => $bulan, 'tahun' => $tahun])],
             ['label' => 'Laporan laba rugi', 'route' => route('laporan.keuangan', ['bulan' => $bulan, 'tahun' => $tahun])],
         ];

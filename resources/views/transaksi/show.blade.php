@@ -5,92 +5,202 @@
             <h2 class="mt-2 text-3xl font-black tracking-tight text-stone-950">Detail data general {{ $transaksi->tanggal->format('d M Y') }}</h2>
         </div>
 
-        <div class="flex flex-wrap gap-3">
-            <a href="{{ route('transaksi-operasional.edit', $transaksi) }}" class="btn-primary btn-compact">Edit</a>
-            <a href="{{ route('transaksi-operasional.index') }}" class="btn-soft btn-compact">Kembali</a>
-        </div>
     </x-slot>
 
     @php($rupiah = fn ($nilai) => 'Rp ' . number_format((float) $nilai, 0, ',', '.'))
 
-    <div class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <section class="space-y-6">
-            <div class="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-stone-500">Informasi Utama</p>
-                <div class="mt-5 grid gap-4 md:grid-cols-2">
-                    <div class="rounded-2xl bg-stone-50 p-4">
-                        <p class="text-xs uppercase tracking-[0.25em] text-stone-500">Kapal</p>
-                        <p class="mt-2 font-semibold text-stone-950">{{ $transaksi->kapal->nama_kapal }}</p>
+    <div class="card max-w-5xl mx-auto">
+        <div class="grid lg:grid-cols-2 gap-x-16 gap-y-12">
+            
+            {{-- Kolom Kiri --}}
+            <div class="space-y-12">
+                {{-- Informasi Utama --}}
+                <div>
+                    <div class="mb-6 border-b border-stone-200/70 pb-4">
+                        <p class="text-lg font-bold text-stone-900">Informasi Utama</p>
                     </div>
-                    <div class="rounded-2xl bg-stone-50 p-4">
-                        <p class="text-xs uppercase tracking-[0.25em] text-stone-500">Kendaraan</p>
-                        <p class="mt-2 font-semibold text-stone-950">{{ $transaksi->kendaraan->nopol }}</p>
-                        <p class="text-sm text-stone-500">{{ $transaksi->kendaraan->pemilik->nama_pemilik }}</p>
+                    <table class="w-full text-sm text-left">
+                        <tbody>
+                            <tr>
+                                <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Tanggal kegiatan</td>
+                                <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                <td class="py-2.5 pl-2 font-semibold text-stone-950 align-top">{{ ($transaksi->tanggal_kegiatan ?? $transaksi->tanggal)->format('d M Y') }}</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Kapal</td>
+                                <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                <td class="py-2.5 pl-2 font-semibold text-stone-950 align-top">{{ $transaksi->kapal->nama_kapal }}</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Kendaraan</td>
+                                <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                <td class="py-2.5 pl-2 align-top">
+                                    <span class="font-semibold text-stone-950 block">{{ $transaksi->kendaraan->nopol }}</span>
+                                    <span class="text-xs text-stone-500">({{ $transaksi->kendaraan->pemilik->nama_pemilik }})</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Rute</td>
+                                <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                <td class="py-2.5 pl-2 font-semibold text-stone-950 align-top">{{ $transaksi->rute }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                {{-- Muatan dan Biaya Dasar --}}
+                <div>
+                    <div class="mb-6 border-b border-stone-200/70 pb-4">
+                        <p class="text-lg font-bold text-stone-900">Muatan dan Biaya Dasar</p>
                     </div>
-                    <div class="rounded-2xl bg-stone-50 p-4">
-                        <p class="text-xs uppercase tracking-[0.25em] text-stone-500">Rute</p>
-                        <p class="mt-2 font-semibold text-stone-950">{{ $transaksi->rute }}</p>
+                    <table class="w-full text-sm text-left">
+                        <tbody>
+                            <tr>
+                                <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Ritase & Tonase</td>
+                                <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                <td class="py-2.5 pl-2 font-semibold text-stone-950 align-top">{{ $transaksi->ritase }} ritase &middot; {{ number_format((float) $transaksi->tonase, 2, ',', '.') }} ton</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Biaya operasional</td>
+                                <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                <td class="py-2.5 pl-2 font-semibold text-stone-950 align-top">{{ $rupiah($transaksi->operasional) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Sangu supir</td>
+                                <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                <td class="py-2.5 pl-2 font-semibold text-stone-950 align-top">{{ $rupiah($transaksi->sangu_supir) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Terpal</td>
+                                <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                <td class="py-2.5 pl-2 font-semibold text-stone-950 align-top">{{ $rupiah($transaksi->terpal) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Total lapangan</td>
+                                <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                <td class="py-2.5 pl-2 font-bold text-stone-950 align-top">{{ $rupiah($transaksi->total_lapangan) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                {{-- Keterangan Tambahan --}}
+                <div>
+                    <div class="mb-6 border-b border-stone-200/70 pb-4">
+                        <p class="text-lg font-bold text-stone-900">Keterangan Tambahan</p>
                     </div>
-                    <div class="rounded-2xl bg-stone-50 p-4">
-                        <p class="text-xs uppercase tracking-[0.25em] text-stone-500">Ritase dan tonase</p>
-                        <p class="mt-2 font-semibold text-stone-950">{{ $transaksi->ritase }} ritase</p>
-                        <p class="text-sm text-stone-500">{{ number_format((float) $transaksi->tonase, 2, ',', '.') }} ton</p>
-                    </div>
-                    <div class="rounded-2xl bg-stone-50 p-4">
-                        <p class="text-xs uppercase tracking-[0.25em] text-stone-500">Tanggal kegiatan</p>
-                        <p class="mt-2 font-semibold text-stone-950">{{ ($transaksi->tanggal_kegiatan ?? $transaksi->tanggal)->format('d M Y') }}</p>
-                    </div>
+                    <p class="text-sm leading-6 text-stone-700">{{ $transaksi->keterangan ?: 'Tidak ada keterangan tambahan.' }}</p>
                 </div>
             </div>
 
-            <div class="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-stone-500">Keterangan</p>
-                <p class="mt-4 leading-7 text-stone-700">{{ $transaksi->keterangan ?: 'Belum ada keterangan tambahan.' }}</p>
-            </div>
-        </section>
+            {{-- Kolom Kanan --}}
+            <div class="space-y-12">
+                {{-- Ringkasan Keuangan --}}
+                <div>
+                    <div class="mb-6 border-b border-stone-200/70 pb-4">
+                        <p class="text-lg font-bold text-stone-900">Ringkasan Keuangan</p>
+                    </div>
+                    <table class="w-full text-sm text-left">
+                        <tbody>
+                            <tr>
+                                <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Pendapatan kotor</td>
+                                <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                <td class="py-2.5 pl-2 font-bold text-emerald-600 align-top">{{ $rupiah($transaksi->pendapatan) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Total biaya</td>
+                                <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                <td class="py-2.5 pl-2 font-semibold text-rose-600 align-top">{{ $rupiah($transaksi->total_biaya) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Laba bersih</td>
+                                <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                <td class="py-2.5 pl-2 font-black {{ $transaksi->laba_kotor >= 0 ? 'text-emerald-700' : 'text-rose-700' }} text-lg align-top">{{ $rupiah($transaksi->laba_kotor) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-        <section class="space-y-6">
-            <div class="rounded-[2rem] bg-stone-950 p-6 text-white shadow-2xl shadow-stone-300/40">
-                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-amber-300/80">Ringkasan Keuangan</p>
-                <p class="mt-4 text-3xl font-black">{{ $rupiah($transaksi->pendapatan) }}</p>
-                <div class="mt-6 space-y-3 text-sm text-stone-300">
-                    <div class="flex justify-between gap-3"><span>Biaya operasional</span><span>{{ $rupiah($transaksi->operasional) }}</span></div>
-                    <div class="flex justify-between gap-3"><span>Sangu supir</span><span>{{ $rupiah($transaksi->sangu_supir) }}</span></div>
-                    <div class="flex justify-between gap-3"><span>Terpal</span><span>{{ $rupiah($transaksi->terpal) }}</span></div>
-                    <div class="flex justify-between gap-3"><span>Total lapangan</span><span>{{ $rupiah($transaksi->total_lapangan) }}</span></div>
-                    <div class="flex justify-between gap-3 border-t border-white/10 pt-3 font-bold"><span>Total biaya</span><span>{{ $rupiah($transaksi->total_biaya) }}</span></div>
-                    <div class="flex justify-between gap-3 font-bold {{ $transaksi->laba_kotor >= 0 ? 'text-emerald-300' : 'text-rose-300' }}"><span>Laba kotor</span><span>{{ $rupiah($transaksi->laba_kotor) }}</span></div>
+                {{-- Gaji Telly --}}
+                <div>
+                    <div class="mb-6 border-b border-stone-200/70 pb-4">
+                        <p class="text-lg font-bold text-stone-900">Gaji Telly</p>
+                    </div>
+                    @if ($transaksi->gajiTelly)
+                        <table class="w-full text-sm text-left">
+                            <tbody>
+                                <tr>
+                                    <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Karyawan</td>
+                                    <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                    <td class="py-2.5 pl-2 font-semibold text-stone-950 align-top">{{ $transaksi->gajiTelly->karyawan->nama }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Gaji satuan</td>
+                                    <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                    <td class="py-2.5 pl-2 font-semibold text-stone-950 align-top">{{ $rupiah($transaksi->gajiTelly->gaji) }} / ton</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Total kotor</td>
+                                    <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                    <td class="py-2.5 pl-2 font-semibold text-stone-950 align-top">{{ $rupiah($transaksi->gajiTelly->gaji_total) }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Potongan PPh</td>
+                                    <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                    <td class="py-2.5 pl-2 font-semibold text-rose-600 align-top">{{ $rupiah($transaksi->gajiTelly->pph) }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Gaji bersih</td>
+                                    <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                    <td class="py-2.5 pl-2 font-bold text-stone-950 align-top">{{ $rupiah($transaksi->gajiTelly->gaji_bersih) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    @else
+                        <p class="text-sm text-stone-500 italic">Belum ada data gaji telly.</p>
+                    @endif
+                </div>
+
+                {{-- Paguyuban --}}
+                <div>
+                    <div class="mb-6 border-b border-stone-200/70 pb-4">
+                        <p class="text-lg font-bold text-stone-900">Paguyuban</p>
+                    </div>
+                    @if ($transaksi->paguyuban)
+                        <table class="w-full text-sm text-left">
+                            <tbody>
+                                <tr>
+                                    <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Tanggal bayar</td>
+                                    <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                    <td class="py-2.5 pl-2 font-semibold text-stone-950 align-top">{{ $transaksi->paguyuban->tanggal->format('d M Y') }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Tonase</td>
+                                    <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                    <td class="py-2.5 pl-2 font-semibold text-stone-950 align-top">{{ number_format((float) $transaksi->tonase, 2, ',', '.') }} ton</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Tarif per ton</td>
+                                    <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                    <td class="py-2.5 pl-2 font-semibold text-stone-950 align-top">{{ $rupiah($transaksi->paguyuban->tarif) }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 pr-3 font-semibold text-stone-700 w-[140px] align-top">Total bayar</td>
+                                    <td class="py-2.5 px-2 font-semibold text-stone-700 w-[1%] align-top">:</td>
+                                    <td class="py-2.5 pl-2 font-bold text-stone-950 align-top">{{ $rupiah($transaksi->paguyuban->total_bayar) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    @else
+                        <p class="text-sm text-stone-500 italic">Belum ada data paguyuban.</p>
+                    @endif
                 </div>
             </div>
+        </div>
 
-            <div class="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-stone-500">Gaji Telly</p>
-                @if ($transaksi->gajiTelly)
-                    <div class="mt-4 space-y-3 text-sm text-stone-700">
-                        <div class="flex justify-between gap-3"><span>Karyawan</span><span class="font-semibold">{{ $transaksi->gajiTelly->karyawan->nama }}</span></div>
-                        <div class="flex justify-between gap-3"><span>Gaji satuan</span><span>{{ $rupiah($transaksi->gajiTelly->gaji) }}</span></div>
-                        <div class="flex justify-between gap-3"><span>Gaji total</span><span>{{ $rupiah($transaksi->gajiTelly->gaji_total) }}</span></div>
-                        <div class="flex justify-between gap-3"><span>PPh</span><span>{{ $rupiah($transaksi->gajiTelly->pph) }}</span></div>
-                        <div class="flex justify-between gap-3 border-t border-stone-100 pt-3"><span>Gaji bersih</span><span class="font-bold">{{ $rupiah($transaksi->gajiTelly->gaji_bersih) }}</span></div>
-                    </div>
-                @else
-                    <p class="mt-4 text-sm text-stone-500">Belum ada data gaji telly.</p>
-                @endif
-            </div>
-
-            <div class="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-stone-500">Paguyuban</p>
-                @if ($transaksi->paguyuban)
-                    <div class="mt-4 space-y-3 text-sm text-stone-700">
-                        <div class="flex justify-between gap-3"><span>Tanggal</span><span>{{ $transaksi->paguyuban->tanggal->format('d M Y') }}</span></div>
-                        <div class="flex justify-between gap-3"><span>Tonase</span><span>{{ number_format((float) $transaksi->tonase, 2, ',', '.') }} ton</span></div>
-                        <div class="flex justify-between gap-3"><span>Tarif per ton</span><span>{{ $rupiah($transaksi->paguyuban->tarif) }}</span></div>
-                        <div class="flex justify-between gap-3 border-t border-stone-100 pt-3"><span>Total bayar</span><span class="font-bold">{{ $rupiah($transaksi->paguyuban->total_bayar) }}</span></div>
-                    </div>
-                @else
-                    <p class="mt-4 text-sm text-stone-500">Belum ada data paguyuban.</p>
-                @endif
-            </div>
-        </section>
+        <div class="mt-10 pt-6 border-t border-stone-200 flex items-center justify-end gap-3">
+            <a href="{{ route('transaksi-operasional.index') }}" class="btn-soft">Kembali</a>
+            <a href="{{ route('transaksi-operasional.edit', $transaksi) }}" class="btn-primary">Edit Data</a>
+        </div>
     </div>
 </x-app-layout>

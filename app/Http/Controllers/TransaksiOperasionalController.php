@@ -44,7 +44,7 @@ class TransaksiOperasionalController extends Controller
         $terpal = (float) (clone $summaryQuery)->sum('terpal');
         $biayaOperasional = (float) (clone $summaryQuery)->sum('operasional');
 
-        return view('transaksi.index', [
+        return view('transaksi.index', array_merge([
             'transaksi' => $transaksi,
             'bulan' => $bulan,
             'tahun' => $tahun,
@@ -60,7 +60,7 @@ class TransaksiOperasionalController extends Controller
                 'tonase' => (float) (clone $summaryQuery)->sum('tonase'),
                 'total' => (clone $summaryQuery)->count(),
             ],
-        ]);
+        ], $this->formData()));
     }
 
     public function create(): View
@@ -80,7 +80,7 @@ class TransaksiOperasionalController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         $validated = $this->validateTransaksi($request);
 
@@ -90,6 +90,15 @@ class TransaksiOperasionalController extends Controller
 
             return $transaksi;
         });
+
+        if ($request->wantsJson()) {
+            $transaksi->load(['kapal', 'kendaraan.pemilik', 'telly', 'gajiTelly.karyawan', 'paguyuban']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Transaksi operasional berhasil disimpan.',
+                'transaksi' => $transaksi
+            ]);
+        }
 
         return redirect()->route('transaksi-operasional.show', $transaksi)->with('status', 'Transaksi operasional berhasil disimpan.');
     }
@@ -113,14 +122,44 @@ class TransaksiOperasionalController extends Controller
         ));
     }
 
-    public function update(Request $request, TransaksiOperasional $transaksiOperasional): RedirectResponse
+    public function update(Request $request, TransaksiOperasional $transaksiOperasional)
     {
+        $dbVersion = (int) $transaksiOperasional->version;
+        $submittedVersion = (int) $request->input('version');
+
+        if ($submittedVersion !== $dbVersion) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data gagal diperbarui karena telah diubah oleh admin lain. Silakan refresh halaman.',
+                    'errors' => [
+                        'version' => ['Data ini telah diubah oleh admin lain. Harap refresh halaman untuk memuat data terbaru.']
+                    ]
+                ], 422);
+            }
+
+            return back()->withErrors([
+                'version' => 'Data gagal diperbarui karena telah diubah oleh admin lain. Silakan refresh halaman.'
+            ]);
+        }
+
         $validated = $this->validateTransaksi($request, $transaksiOperasional);
 
         DB::transaction(function () use ($transaksiOperasional, $validated) {
-            $transaksiOperasional->update($this->transactionPayload($validated));
+            $payload = $this->transactionPayload($validated);
+            $payload['version'] = $transaksiOperasional->version + 1;
+            $transaksiOperasional->update($payload);
             $this->syncRelasiTambahan($transaksiOperasional, $validated);
         });
+
+        if ($request->wantsJson()) {
+            $transaksiOperasional->load(['kapal', 'kendaraan.pemilik', 'telly', 'gajiTelly.karyawan', 'paguyuban']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Transaksi operasional berhasil diperbarui.',
+                'transaksi' => $transaksiOperasional
+            ]);
+        }
 
         return redirect()->route('transaksi-operasional.show', $transaksiOperasional)->with('status', 'Transaksi operasional berhasil diperbarui.');
     }
@@ -130,6 +169,43 @@ class TransaksiOperasionalController extends Controller
         $transaksiOperasional->delete();
 
         return redirect()->route('transaksi-operasional.index')->with('status', 'Transaksi operasional berhasil dihapus.');
+    }
+
+    public function latestActivity(Request $request): JsonResponse
+    {
+        $since = $request->query('since');
+
+        $query = \App\Models\ActivityLog::query()
+            ->with('user')
+            ->where('user_id', '!=', auth()->id())
+            ->latest();
+
+        if ($since) {
+            try {
+                $query->where('created_at', '>', \Carbon\Carbon::parse($since));
+            } catch (\Exception $e) {
+                $query->where('created_at', '>', now()->subSeconds(15));
+            }
+        } else {
+            // Default: only fetch logs created in the last 15 seconds to avoid flooding old notifications on initial load
+            $query->where('created_at', '>', now()->subSeconds(15));
+        }
+
+        $logs = $query->get()->map(function ($log) {
+            return [
+                'id' => $log->id,
+                'description' => $log->description,
+                'action' => $log->action,
+                'user_name' => $log->user->name ?? 'Admin',
+                'created_at' => $log->created_at->toIso8601String(),
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'logs' => $logs,
+            'timestamp' => now()->toIso8601String(),
+        ]);
     }
 
     private function formData(): array

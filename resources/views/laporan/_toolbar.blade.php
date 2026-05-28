@@ -6,8 +6,12 @@
 
     <form method="GET" action="{{ url()->current() }}" class="flex flex-wrap items-end gap-3">
         <div>
-            <label for="bulan" class="mb-1 block text-xs font-semibold uppercase tracking-[0.25em] text-stone-500">Bulan</label>
-            <input id="bulan" name="bulan" type="number" min="1" max="12" value="{{ $bulan }}" class="field w-24 py-2">
+            <label for="bulan" class="mb-2 block text-sm font-semibold text-stone-700">Bulan</label>
+            <select id="bulan" name="bulan" class="field min-w-32 py-2">
+                @foreach(['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'] as $idx => $namaBulan)
+                    <option value="{{ $idx + 1 }}" @selected($bulan == $idx + 1)>{{ $namaBulan }}</option>
+                @endforeach
+            </select>
         </div>
         <div>
             <label for="tahun" class="mb-1 block text-xs font-semibold uppercase tracking-[0.25em] text-stone-500">Tahun</label>

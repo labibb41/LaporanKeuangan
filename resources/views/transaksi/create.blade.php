@@ -14,18 +14,12 @@
         </div>
     </x-slot>
 
-    <form method="POST" action="{{ route('transaksi-operasional.store') }}" class="space-y-6 max-w-4xl">
-        @csrf
-        @include('transaksi._form')
-
-        <div class="flex flex-wrap items-center gap-3">
-            <button type="submit" class="btn-primary">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                Simpan Data General
-            </button>
-            <a href="{{ route('transaksi-operasional.index') }}" class="btn-soft">Kembali</a>
-        </div>
-    </form>
+    <div class="max-w-2xl mx-auto">
+        <form method="POST" action="{{ route('transaksi-operasional.store') }}" class="space-y-6">
+            @csrf
+            <div class="card p-6">
+                @include('transaksi._form', ['transaksi' => null, 'isModal' => false])
+            </div>
+        </form>
+    </div>
 </x-app-layout>

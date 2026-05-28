@@ -29,6 +29,76 @@ class TransaksiOperasional extends Model
         'operasional',
         'telly_id',
         'keterangan',
+        'created_by',
+        'updated_by',
+        'version',
+    ];
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updater(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function ($model) {
+            if (auth()->check()) {
+                $model->created_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($model) {
+            if (auth()->check()) {
+                $model->updated_by = auth()->id();
+            }
+        });
+
+        static::created(function ($model) {
+            if (auth()->check()) {
+                ActivityLog::create([
+                    'user_id' => auth()->id(),
+                    'model_type' => self::class,
+                    'model_id' => $model->id,
+                    'action' => 'created',
+                    'description' => auth()->user()->name . ' menambahkan transaksi baru untuk kapal ' . ($model->kapal->nama_kapal ?? 'Unknown'),
+                ]);
+            }
+        });
+
+        static::updated(function ($model) {
+            if (auth()->check()) {
+                ActivityLog::create([
+                    'user_id' => auth()->id(),
+                    'model_type' => self::class,
+                    'model_id' => $model->id,
+                    'action' => 'updated',
+                    'description' => auth()->user()->name . ' mengubah transaksi kapal ' . ($model->kapal->nama_kapal ?? 'Unknown'),
+                ]);
+            }
+        });
+
+        static::deleted(function ($model) {
+            if (auth()->check()) {
+                ActivityLog::create([
+                    'user_id' => auth()->id(),
+                    'model_type' => self::class,
+                    'model_id' => $model->id,
+                    'action' => 'deleted',
+                    'description' => auth()->user()->name . ' menghapus transaksi kapal ' . ($model->kapal->nama_kapal ?? 'Unknown'),
+                ]);
+            }
+        });
+    }
+
+    protected $appends = [
+        'total_biaya',
+        'laba_kotor',
+        'total_lapangan',
     ];
 
     protected function casts(): array

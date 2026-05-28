@@ -14,6 +14,7 @@ class Kapal extends Model
 
     protected $fillable = [
         'nama_kapal',
+        'nama_paguyuban',
         'voyage',
         'pemilik_kapal',
         'tahun_pembuatan',

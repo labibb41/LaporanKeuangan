@@ -13,13 +13,18 @@
     </x-slot>
 
     @php($rupiah = fn ($nilai) => 'Rp ' . number_format((float) $nilai, 0, ',', '.'))
+    @php($bulanList = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'])
 
     <div class="space-y-6">
         <section class="card">
             <form method="GET" class="grid gap-4 md:grid-cols-[1fr_1fr_auto]">
                 <div>
                     <label for="bulan" class="mb-2 block text-sm font-semibold text-stone-700">Filter bulan</label>
-                    <input id="bulan" name="bulan" type="number" min="1" max="12" value="{{ $bulan }}" class="field py-2">
+                    <select id="bulan" name="bulan" class="field py-2">
+                        @foreach($bulanList as $idx => $namaBulan)
+                            <option value="{{ $idx + 1 }}" @selected($bulan == $idx + 1)>{{ $namaBulan }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div>
                     <label for="tahun" class="mb-2 block text-sm font-semibold text-stone-700">Filter tahun</label>
@@ -80,11 +85,25 @@
                             </tr>
                         @endforelse
                     </tbody>
+                    @if ($pengeluaran->isNotEmpty())
+                        <tfoot class="bg-stone-50 border-t border-stone-200">
+                            <tr>
+                                <th class="px-4 py-4 text-left font-bold uppercase tracking-widest text-stone-600" colspan="3">TOTAL KESELURUHAN BULAN {{ strtoupper($bulanList[$bulan - 1]) }} TAHUN {{ $tahun }}</th>
+                                <th class="px-4 py-4 text-left font-black text-rose-700 text-base" colspan="2">{{ $rupiah($total) }}</th>
+                            </tr>
+                        </tfoot>
+                    @endif
                 </table>
             </div>
 
-            <div class="mt-4">
-                {{ $pengeluaran->links() }}
+            <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    {{ $pengeluaran->links() }}
+                </div>
+                <a href="{{ route('laporan.pengeluaran.cetak', ['bulan' => $bulan, 'tahun' => $tahun]) }}" target="_blank" class="btn-primary">
+                    <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    Cetak Laporan PDF
+                </a>
             </div>
         </section>
     </div>

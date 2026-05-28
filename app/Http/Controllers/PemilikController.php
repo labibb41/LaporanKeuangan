@@ -14,6 +14,7 @@ class PemilikController extends Controller
         return view('pemilik.index', [
             'pemilik' => Pemilik::query()
                 ->withCount('kendaraan')
+                ->withSum('transaksiOperasional', 'pendapatan')
                 ->latest()
                 ->paginate(10),
         ]);
@@ -28,6 +29,15 @@ class PemilikController extends Controller
         Pemilik::create($validated);
 
         return back()->with('status', 'Pemilik berhasil ditambahkan.');
+    }
+
+    public function show(Pemilik $pemilik): View
+    {
+        return view('pemilik.show', [
+            'pemilik' => $pemilik->load(['kendaraan' => function ($query) {
+                $query->withCount('transaksiOperasional')->latest();
+            }]),
+        ]);
     }
 
     public function edit(Pemilik $pemilik): View

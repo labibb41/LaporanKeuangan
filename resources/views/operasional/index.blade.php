@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-sky-700">Operasional</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-sky-700">Laporan Operasional</p>
             <h2 class="mt-2 text-3xl font-black tracking-tight text-stone-950">Rekap operasional per kapal</h2>
             <p class="mt-2 text-sm text-stone-600">Data di bawah mengambil rangkuman dari Database General, lalu bisa dilengkapi manual per kapal.</p>
         </div>
@@ -11,13 +11,13 @@
 
     <section class="card space-y-6">
         <form method="GET" class="flex flex-wrap items-end gap-3">
-            <a href="{{ route('operasional.create', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn-primary btn-compact">
-                Tambah data operasional
-            </a>
-
             <div class="min-w-[10rem] flex-1 md:flex-none">
                 <label for="bulan" class="mb-2 block text-sm font-semibold text-stone-700">Filter bulan</label>
-                <input id="bulan" name="bulan" type="number" min="1" max="12" value="{{ $bulan }}" class="field py-2">
+                <select id="bulan" name="bulan" class="field py-2">
+                    @foreach(['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'] as $idx => $namaBulan)
+                        <option value="{{ $idx + 1 }}" @selected($bulan == $idx + 1)>{{ $namaBulan }}</option>
+                    @endforeach
+                </select>
             </div>
             <div class="min-w-[10rem] flex-1 md:flex-none">
                 <label for="tahun" class="mb-2 block text-sm font-semibold text-stone-700">Filter tahun</label>

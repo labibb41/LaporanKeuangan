@@ -16,13 +16,13 @@
                 <input id="nopol" name="nopol" type="text" value="{{ old('nopol', $kendaraan->nopol) }}" class="field" required>
             </div>
             <div>
-                <label for="nama_pemilik" class="label">Pemilik</label>
-                <input list="daftar-pemilik" id="nama_pemilik" name="nama_pemilik" type="text" value="{{ old('nama_pemilik', $kendaraan->pemilik->nama_pemilik ?? '') }}" class="field" placeholder="Ketik nama pemilik" required>
-                <datalist id="daftar-pemilik">
+                <label for="pemilik_id" class="label">Pemilik</label>
+                <select id="pemilik_id" name="pemilik_id" class="field" required>
+                    <option value="" disabled>Pilih pemilik...</option>
                     @foreach ($daftarPemilik as $pemilik)
-                        <option value="{{ $pemilik->nama_pemilik }}">
+                        <option value="{{ $pemilik->id }}" @selected(old('pemilik_id', $kendaraan->pemilik_id) == $pemilik->id)>{{ $pemilik->nama_pemilik }}</option>
                     @endforeach
-                </datalist>
+                </select>
             </div>
 
             <div class="flex flex-wrap gap-3 md:col-span-2">

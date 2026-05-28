@@ -27,14 +27,12 @@ class KendaraanController extends Controller
     {
         $validated = $request->validate([
             'nopol' => ['required', 'string', 'max:255', 'unique:kendaraan,nopol'],
-            'nama_pemilik' => ['required', 'string', 'max:255'],
+            'pemilik_id' => ['required', 'exists:pemilik,id'],
         ]);
-
-        $pemilik = Pemilik::firstOrCreate(['nama_pemilik' => $validated['nama_pemilik']]);
 
         Kendaraan::create([
             'nopol' => $validated['nopol'],
-            'pemilik_id' => $pemilik->id,
+            'pemilik_id' => $validated['pemilik_id'],
         ]);
 
         return back()->with('status', 'Kendaraan berhasil ditambahkan.');
@@ -52,14 +50,12 @@ class KendaraanController extends Controller
     {
         $validated = $request->validate([
             'nopol' => ['required', 'string', 'max:255', Rule::unique('kendaraan', 'nopol')->ignore($kendaraan->id)],
-            'nama_pemilik' => ['required', 'string', 'max:255'],
+            'pemilik_id' => ['required', 'exists:pemilik,id'],
         ]);
-
-        $pemilik = Pemilik::firstOrCreate(['nama_pemilik' => $validated['nama_pemilik']]);
 
         $kendaraan->update([
             'nopol' => $validated['nopol'],
-            'pemilik_id' => $pemilik->id,
+            'pemilik_id' => $validated['pemilik_id'],
         ]);
 
         return redirect()->route('kendaraan.index')->with('status', 'Data kendaraan berhasil diperbarui.');

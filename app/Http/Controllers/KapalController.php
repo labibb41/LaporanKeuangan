@@ -17,12 +17,17 @@ class KapalController extends Controller
                 ->withCount('transaksiOperasional')
                 ->latest()
                 ->paginate(10),
+            'daftarPaguyuban' => Kapal::select('nama_paguyuban')->distinct()->pluck('nama_paguyuban')->filter(),
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate($this->rules());
+
+        if ($validated['nama_paguyuban'] === 'NEW') {
+            $validated['nama_paguyuban'] = null;
+        }
 
         Kapal::create($validated);
 
@@ -31,12 +36,17 @@ class KapalController extends Controller
 
     public function edit(Kapal $kapal): View
     {
-        return view('kapal.edit', compact('kapal'));
+        $daftarPaguyuban = Kapal::select('nama_paguyuban')->distinct()->pluck('nama_paguyuban')->filter();
+        return view('kapal.edit', compact('kapal', 'daftarPaguyuban'));
     }
 
     public function update(Request $request, Kapal $kapal): RedirectResponse
     {
         $validated = $request->validate($this->rules($kapal));
+
+        if ($validated['nama_paguyuban'] === 'NEW') {
+            $validated['nama_paguyuban'] = null;
+        }
 
         $kapal->update($validated);
 
@@ -60,6 +70,7 @@ class KapalController extends Controller
     {
         return [
             'nama_kapal'      => ['required', 'string', 'max:255', Rule::unique('kapal', 'nama_kapal')->ignore($kapal?->id)],
+            'nama_paguyuban'  => ['nullable', 'string', 'max:255'],
             'kapasitas_ton'   => ['nullable', 'numeric', 'min:0'],
             'status'          => ['nullable', 'in:aktif,nonaktif'],
             'keterangan'      => ['nullable', 'string'],

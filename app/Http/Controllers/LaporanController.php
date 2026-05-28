@@ -8,6 +8,7 @@ use App\Models\Pemilik;
 use App\Models\Pengeluaran;
 use App\Models\TransaksiOperasional;
 use App\Models\Karyawan;
+use App\Models\Kapal;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -38,7 +39,7 @@ class LaporanController extends Controller
                 [
                     'title' => 'Laporan Operasional',
                     'description' => 'Rekap ritase, tonase, pendapatan, dan biaya per kapal.',
-                    'route' => route('laporan.operasional', ['bulan' => $bulan, 'tahun' => $tahun]),
+                    'route' => route('operasional.index', ['bulan' => $bulan, 'tahun' => $tahun]),
                 ],
                 [
                     'title' => 'Laporan Partner',
@@ -107,34 +108,59 @@ class LaporanController extends Controller
     {
         [$bulan, $tahun] = $this->period($request);
 
-        $laporan = Pemilik::query()
-            ->withCount('kendaraan')
-            ->with([
-                'kendaraan.transaksiOperasional' => fn ($query) => $query
-                    ->periode($bulan, $tahun)
-                    ->with(['gajiTelly', 'paguyuban']),
-            ])
-            ->orderBy('nama_pemilik')
-            ->get()
-            ->map(function (Pemilik $pemilik) {
-                $transaksi = $pemilik->kendaraan->flatMap->transaksiOperasional;
-                $pendapatan = (float) $transaksi->sum('pendapatan');
-                $biaya = (float) $transaksi->sum(fn (TransaksiOperasional $item) => $item->total_biaya);
+        $pemilikId = $request->integer('pemilik_id');
+        $daftarPemilik = Pemilik::orderBy('nama_pemilik')->get();
 
-                return (object) [
-                    'nama_pemilik' => $pemilik->nama_pemilik,
-                    'total_kendaraan' => $pemilik->kendaraan_count,
-                    'total_transaksi' => $transaksi->count(),
-                    'total_pendapatan' => $pendapatan,
-                    'total_biaya' => $biaya,
-                    'laba_bersih' => $pendapatan - $biaya,
-                ];
-            });
+        $laporan = collect();
+        $detail = collect();
+        $selectedPemilik = null;
+
+        if ($pemilikId) {
+            $selectedPemilik = $daftarPemilik->firstWhere('id', $pemilikId);
+
+            $detail = TransaksiOperasional::query()
+                ->with(['kapal', 'kendaraan', 'gajiTelly', 'paguyuban'])
+                ->whereHas('kendaraan', function ($query) use ($pemilikId) {
+                    $query->where('pemilik_id', $pemilikId);
+                })
+                ->periode($bulan, $tahun)
+                ->orderBy('kapal_id')
+                ->orderBy('tanggal')
+                ->get();
+        } else {
+            $laporan = Pemilik::query()
+                ->withCount('kendaraan')
+                ->with([
+                    'kendaraan.transaksiOperasional' => fn ($query) => $query
+                        ->periode($bulan, $tahun)
+                        ->with(['gajiTelly', 'paguyuban']),
+                ])
+                ->orderBy('nama_pemilik')
+                ->get()
+                ->map(function (Pemilik $pemilik) {
+                    $transaksi = $pemilik->kendaraan->flatMap->transaksiOperasional;
+                    $pendapatan = (float) $transaksi->sum('pendapatan');
+                    $biaya = (float) $transaksi->sum(fn (TransaksiOperasional $item) => $item->total_biaya);
+
+                    return (object) [
+                        'nama_pemilik' => $pemilik->nama_pemilik,
+                        'total_kendaraan' => $pemilik->kendaraan_count,
+                        'total_transaksi' => $transaksi->count(),
+                        'total_pendapatan' => $pendapatan,
+                        'total_biaya' => $biaya,
+                        'laba_bersih' => $pendapatan - $biaya,
+                    ];
+                });
+        }
 
         return view('laporan.partner', [
             'bulan' => $bulan,
             'tahun' => $tahun,
+            'pemilikId' => $pemilikId,
+            'daftarPemilik' => $daftarPemilik,
+            'selectedPemilik' => $selectedPemilik,
             'laporan' => $laporan,
+            'detail' => $detail,
         ]);
     }
 
@@ -205,17 +231,54 @@ class LaporanController extends Controller
     {
         [$bulan, $tahun] = $this->period($request);
 
-        $laporan = TransaksiOperasional::query()
-            ->with(['kapal', 'kendaraan'])
-            ->whereHas('paguyuban')
-            ->periode($bulan, $tahun)
-            ->orderBy('tanggal')
-            ->get();
+        $namaPaguyuban = $request->query('nama_paguyuban');
+        $daftarPaguyuban = Kapal::select('nama_paguyuban')->whereNotNull('nama_paguyuban')->distinct()->pluck('nama_paguyuban')->filter();
+
+        $laporan = collect();
+        $detail = collect();
+        $kapalPaguyuban = collect();
+
+        if ($namaPaguyuban) {
+            $detail = TransaksiOperasional::query()
+                ->with(['kapal', 'kendaraan', 'paguyuban'])
+                ->whereHas('kapal', function ($q) use ($namaPaguyuban) {
+                    $q->where('nama_paguyuban', $namaPaguyuban);
+                })
+                ->whereHas('paguyuban')
+                ->periode($bulan, $tahun)
+                ->orderBy('tanggal')
+                ->get();
+                
+            $kapalPaguyuban = Kapal::where('nama_paguyuban', $namaPaguyuban)->orderBy('nama_kapal')->get();
+        } else {
+            $laporan = $daftarPaguyuban->map(function ($nama) use ($bulan, $tahun) {
+                $transaksi = TransaksiOperasional::query()
+                    ->with('paguyuban')
+                    ->whereHas('kapal', function ($q) use ($nama) {
+                        $q->where('nama_paguyuban', $nama);
+                    })
+                    ->whereHas('paguyuban')
+                    ->periode($bulan, $tahun)
+                    ->get();
+
+                return (object) [
+                    'nama_paguyuban' => $nama,
+                    'total_kapal' => Kapal::where('nama_paguyuban', $nama)->count(),
+                    'total_transaksi' => $transaksi->count(),
+                    'total_tonase' => $transaksi->sum('tonase'),
+                    'total_bayar' => $transaksi->sum(fn ($t) => (float) ($t->paguyuban?->total_bayar ?? 0)),
+                ];
+            });
+        }
 
         return view('laporan.paguyuban', [
             'bulan' => $bulan,
             'tahun' => $tahun,
+            'namaPaguyuban' => $namaPaguyuban,
+            'daftarPaguyuban' => $daftarPaguyuban,
             'laporan' => $laporan,
+            'detail' => $detail,
+            'kapalPaguyuban' => $kapalPaguyuban,
             'tarifPaguyuban' => Paguyuban::DEFAULT_TARIF,
         ]);
     }

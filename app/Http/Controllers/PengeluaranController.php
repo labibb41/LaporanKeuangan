@@ -51,12 +51,37 @@ class PengeluaranController extends Controller
             'bulan' => $bulan,
             'tahun' => $tahun,
             'total' => $total,
+            'daftarKaryawan' => \App\Models\Karyawan::orderBy('nama')->get(),
+            'daftarJenis' => \App\Models\Pengeluaran::select('jenis')->distinct()->pluck('jenis'),
+        ]);
+    }
+
+    public function cetak(Request $request): View
+    {
+        [$bulan, $tahun] = $this->period($request);
+
+        $pengeluaran = Pengeluaran::query()
+            ->periode($bulan, $tahun)
+            ->latest('tanggal')
+            ->get();
+
+        $total = (float) Pengeluaran::query()
+            ->periode($bulan, $tahun)
+            ->sum('jumlah');
+
+        return view('laporan.pengeluaran_cetak', [
+            'pengeluaran' => $pengeluaran,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'total' => $total,
         ]);
     }
 
     public function create(): View
     {
-        return view('pengeluaran.create');
+        $daftarKaryawan = \App\Models\Karyawan::orderBy('nama')->get();
+        $daftarJenis = \App\Models\Pengeluaran::select('jenis')->distinct()->pluck('jenis');
+        return view('pengeluaran.create', compact('daftarKaryawan', 'daftarJenis'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -77,7 +102,9 @@ class PengeluaranController extends Controller
 
     public function edit(Pengeluaran $pengeluaran): View
     {
-        return view('pengeluaran.edit', compact('pengeluaran'));
+        $daftarKaryawan = \App\Models\Karyawan::orderBy('nama')->get();
+        $daftarJenis = \App\Models\Pengeluaran::select('jenis')->distinct()->pluck('jenis');
+        return view('pengeluaran.edit', compact('pengeluaran', 'daftarKaryawan', 'daftarJenis'));
     }
 
     public function update(Request $request, Pengeluaran $pengeluaran): RedirectResponse

@@ -20,4 +20,9 @@ class Pemilik extends Model
     {
         return $this->hasMany(Kendaraan::class);
     }
+
+    public function transaksiOperasional()
+    {
+        return $this->hasManyThrough(TransaksiOperasional::class, Kendaraan::class);
+    }
 }
