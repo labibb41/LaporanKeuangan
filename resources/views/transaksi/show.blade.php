@@ -7,7 +7,9 @@
 
     </x-slot>
 
-    @php($rupiah = fn ($nilai) => 'Rp ' . number_format((float) $nilai, 0, ',', '.'))
+    @php
+        $rupiah = fn ($nilai) => 'Rp ' . number_format((float) $nilai, 0, ',', '.');
+    @endphp
 
     <div class="card max-w-5xl mx-auto">
         <div class="grid lg:grid-cols-2 gap-x-16 gap-y-12">

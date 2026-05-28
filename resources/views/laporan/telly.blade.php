@@ -6,7 +6,9 @@
         </div>
     </x-slot>
 
-    @php($rupiah = fn ($nilai) => 'Rp ' . number_format((float) $nilai, 0, ',', '.'))
+    @php
+        $rupiah = fn ($nilai) => 'Rp ' . number_format((float) $nilai, 0, ',', '.');
+    @endphp
 
     <section class="card space-y-6">
         @include('laporan._toolbar')

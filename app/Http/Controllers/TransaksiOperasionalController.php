@@ -22,7 +22,7 @@ class TransaksiOperasionalController extends Controller
         [$bulan, $tahun] = $this->period($request);
 
         $query = TransaksiOperasional::query()
-            ->with(['kapal', 'kendaraan.pemilik', 'telly', 'gajiTelly', 'paguyuban'])
+            ->with(['kapal', 'kendaraan.pemilik', 'telly', 'gajiTelly', 'paguyuban', 'creator', 'updater'])
             ->periode($bulan, $tahun)
             ->latest('tanggal');
 
@@ -194,6 +194,7 @@ class TransaksiOperasionalController extends Controller
         $logs = $query->get()->map(function ($log) {
             return [
                 'id' => $log->id,
+                'model_id' => $log->model_id,
                 'description' => $log->description,
                 'action' => $log->action,
                 'user_name' => $log->user->name ?? 'Admin',

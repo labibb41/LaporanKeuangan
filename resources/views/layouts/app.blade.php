@@ -237,6 +237,7 @@
                     })
                     .then(data => {
                         if (data.success && data.logs && data.logs.length > 0) {
+                            let shouldReload = false;
                             data.logs.forEach(log => {
                                 let icon = 'info';
                                 if (log.action === 'created') icon = 'success';
@@ -247,7 +248,30 @@
                                     title: log.action === 'created' ? 'Transaksi Baru!' : (log.action === 'updated' ? 'Data Diperbarui!' : 'Data Dihapus!'),
                                     text: log.description
                                 });
+                                shouldReload = true;
                             });
+
+                            if (shouldReload) {
+                                const isTransaksiPage = window.location.pathname.includes('/transaksi-operasional');
+                                const modalEl = document.querySelector('[x-show="showFormModal"]');
+                                const isEditing = modalEl && modalEl.style.display !== 'none';
+                                
+                                const previewEl = document.querySelector('[x-show="showPreviewModal"]');
+                                const isPreviewing = previewEl && previewEl.style.display !== 'none';
+
+                                if (isTransaksiPage && !isEditing) {
+                                    if (isPreviewing) {
+                                        const alpineEl = document.querySelector('[x-data]');
+                                        if (alpineEl && alpineEl.__x && alpineEl.__x.$data) {
+                                            alpineEl.__x.$data.needsReload = true;
+                                        }
+                                    } else {
+                                        setTimeout(() => {
+                                            window.location.reload();
+                                        }, 1500);
+                                    }
+                                }
+                            }
                         }
                         if (data.timestamp) {
                             lastChecked = data.timestamp;
