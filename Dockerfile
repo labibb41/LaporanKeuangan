@@ -34,17 +34,6 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY . .
 
 RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader \
-    && cp .env.example .env \
-    && sed -i 's/^APP_ENV=.*/APP_ENV=production/' .env \
-    && sed -i 's/^APP_DEBUG=.*/APP_DEBUG=false/' .env \
-    && sed -i 's/^APP_URL=.*/APP_URL=http:\/\/localhost:8080/' .env \
-    && sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=mysql/' .env \
-    && sed -i 's/^DB_HOST=.*/DB_HOST=db/' .env \
-    && sed -i 's/^DB_PORT=.*/DB_PORT=3306/' .env \
-    && sed -i 's/^DB_DATABASE=.*/DB_DATABASE=laporan_keuangan/' .env \
-    && sed -i 's/^DB_USERNAME=.*/DB_USERNAME=laporan_user/' .env \
-    && sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=laporan_secret/' .env \
-    && php artisan key:generate --force \
     && php artisan storage:link --force
 
 COPY --from=frontend /app/public/build ./public/build

@@ -257,7 +257,6 @@ cloudflared tunnel route dns laporan-keuangan app.domain-kamu.com
 
 Contoh file konfigurasi `~/.cloudflared/config.yml`:
 
-```yaml
 tunnel: laporan-keuangan
 credentials-file: /home/user/.cloudflared/ID-TUNNEL.json
 
@@ -266,6 +265,35 @@ ingress:
     service: http://127.0.0.1:80
   - service: http_status:404
 ```
+
+## Deploy Dengan Docker
+
+Kalau server sudah punya MySQL/MariaDB sendiri, jalankan aplikasi Laravel di container dan arahkan `DB_HOST` ke host server.
+
+1. Pastikan `.env` production sudah berisi nilai produksi.
+2. Isi `APP_KEY` dengan hasil `php artisan key:generate --show`.
+3. Jalankan stack Docker:
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+4. Jalankan migrasi dari dalam container:
+
+```bash
+docker compose -f docker-compose.prod.yml exec app php artisan migrate --force
+```
+
+5. Jika perlu, optimalkan cache Laravel:
+
+```bash
+docker compose -f docker-compose.prod.yml exec app php artisan optimize
+```
+
+File utama deployment Docker:
+
+- [Dockerfile](Dockerfile)
+- [docker-compose.prod.yml](docker-compose.prod.yml)
 
 Jalankan tunnel:
 
