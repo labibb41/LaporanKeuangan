@@ -33,13 +33,17 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 COPY . .
 
+RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/app/public bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R ug+rw storage bootstrap/cache
+
 RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader \
     && php artisan storage:link --force
 
 COPY --from=frontend /app/public/build ./public/build
 
-RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/app/public bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R ug+rw storage bootstrap/cache
 
 EXPOSE 80
 
