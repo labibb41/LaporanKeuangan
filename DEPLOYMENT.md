@@ -296,6 +296,12 @@ File utama deployment Docker:
 - [Dockerfile](Dockerfile)
 - [docker-compose.prod.yml](docker-compose.prod.yml)
 
+Kalau masih ada error, lihat log container dulu:
+
+```bash
+docker compose -f docker-compose.prod.yml logs -f app
+```
+
 Jalankan tunnel:
 
 ```bash

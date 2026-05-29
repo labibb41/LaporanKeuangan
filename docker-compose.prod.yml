@@ -9,6 +9,7 @@ services:
     environment:
       APP_ENV: production
       APP_DEBUG: "false"
+      LOG_CHANNEL: stderr
       DB_HOST: host.docker.internal
       DB_PORT: 3306
     extra_hosts:
