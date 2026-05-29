@@ -272,19 +272,20 @@ Kalau server sudah punya MySQL/MariaDB sendiri, jalankan aplikasi Laravel di con
 
 1. Pastikan `.env` production sudah berisi nilai produksi.
 2. Isi `APP_KEY` dengan hasil `php artisan key:generate --show`.
-3. Jalankan stack Docker:
+3. Pastikan `storage/` dan `bootstrap/cache/` bisa ditulis container; container sekarang menyiapkan folder ini saat start.
+4. Jalankan stack Docker:
 
 ```bash
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-4. Jalankan migrasi dari dalam container:
+5. Jalankan migrasi dari dalam container:
 
 ```bash
 docker compose -f docker-compose.prod.yml exec app php artisan migrate --force
 ```
 
-5. Jika perlu, optimalkan cache Laravel:
+6. Jika perlu, optimalkan cache Laravel:
 
 ```bash
 docker compose -f docker-compose.prod.yml exec app php artisan optimize
