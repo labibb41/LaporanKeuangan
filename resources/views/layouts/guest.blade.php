@@ -15,65 +15,52 @@
         @endif
         <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}?v=1">
     </head>
-    <body class="min-h-screen bg-slate-50 antialiased" style="font-family: 'Inter Tight', sans-serif; color: #1e293b;">
-        <div class="flex min-h-screen items-center justify-center px-4 py-10"
-             style="background: radial-gradient(circle at top left, rgba(22,74,65,0.10) 0%, transparent 30%), radial-gradient(circle at bottom right, rgba(241,178,74,0.08) 0%, transparent 35%), linear-gradient(180deg, #f8fafc 0%, #f0faf4 100%);">
-            <div class="w-full max-w-6xl overflow-hidden rounded-[2.75rem] border border-stone-200 bg-white shadow-2xl shadow-slate-200/60">
-                <div class="grid lg:grid-cols-[0.95fr_0.75fr]">
-                {{-- Left panel: Forest Green --}}
-                <div class="hidden p-10 text-white lg:block"
-                     style="background: linear-gradient(135deg, #164A41 0%, #0f3830 60%, #061f1a 100%);">
-                    <a href="{{ route('home') }}" class="inline-flex items-center gap-3">
-                        <span class="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/15 shadow-sm overflow-hidden"
-                              style="width: 56px; height: 56px; min-width: 56px; min-height: 56px; background: rgba(241,178,74,0.15);">
-                            <img src="{{ asset('logo.png') }}" class="h-10 w-10 object-contain" alt="Logo">
-                        </span>
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-[0.35em] leading-none" style="color: #9DC88D;">PT INDO MODA RAYA</p>
-                            <p class="text-lg font-black mt-1 leading-none" style="font-family: 'Montserrat', sans-serif;">{{ config('app.name', 'Laporan Keuangan') }}</p>
-                        </div>
-                    </a>
+    <body class="min-h-screen bg-[#07120f] antialiased" style="font-family: 'Inter Tight', sans-serif; color: #1e293b;">
+        <div class="relative min-h-screen overflow-hidden">
+            <div class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                 style="background-image: url('{{ asset('auth-bg.svg') }}');"></div>
+            <div class="absolute inset-0"
+                 style="background: linear-gradient(90deg, rgba(5,13,11,0.84) 0%, rgba(8,28,24,0.66) 45%, rgba(5,13,11,0.38) 100%);"></div>
+            <div class="absolute inset-x-0 top-0 h-40"
+                 style="background: linear-gradient(180deg, rgba(2,8,7,0.78), transparent);"></div>
 
-                    <h1 class="mt-10 text-5xl font-black leading-tight tracking-tight" style="font-family: 'Montserrat', sans-serif;">
-                        Kelola laporan keuangan perusahaan dari satu tempat.
-                    </h1>
-                    <p class="mt-6 max-w-xl text-lg leading-8" style="color: rgba(157,200,141,0.90);">
-                        Login untuk mengakses dashboard, input transaksi operasional, pengeluaran, master data armada, dan rekap biaya lapangan.
-                    </p>
-
-                    <div class="mt-10 grid gap-4 sm:grid-cols-3">
-                        <div class="rounded-[1.75rem] border border-white/10 p-5 backdrop-blur-md" style="background: rgba(241,178,74,0.10);">
-                            <p class="text-sm font-semibold text-white" style="font-family: 'Montserrat', sans-serif;">Pendapatan</p>
-                            <p class="mt-2 text-sm" style="color: rgba(157,200,141,0.80);">Pantau arus masuk operasional per periode.</p>
-                        </div>
-                        <div class="rounded-[1.75rem] border border-white/10 p-5 backdrop-blur-md" style="background: rgba(241,178,74,0.10);">
-                            <p class="text-sm font-semibold text-white" style="font-family: 'Montserrat', sans-serif;">Biaya</p>
-                            <p class="mt-2 text-sm" style="color: rgba(157,200,141,0.80);">Rekap biaya telly, paguyuban, dan pengeluaran lain.</p>
-                        </div>
-                        <div class="rounded-[1.75rem] border border-white/10 p-5 backdrop-blur-md" style="background: rgba(241,178,74,0.10);">
-                            <p class="text-sm font-semibold text-white" style="font-family: 'Montserrat', sans-serif;">Laporan</p>
-                            <p class="mt-2 text-sm" style="color: rgba(157,200,141,0.80);">Ringkas, rapi, dan siap dipakai operasional harian.</p>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Right panel: Login Form --}}
-                <div class="w-full bg-white p-8 sm:p-10 lg:border-l lg:border-stone-200">
-                    <div class="mb-8 flex items-center gap-3 lg:hidden">
-                        <span class="flex h-12 w-12 items-center justify-center rounded-2xl border border-green-100 shadow-sm overflow-hidden"
-                              style="width: 48px; height: 48px; min-width: 48px; min-height: 48px; background: #e8f5e0;">
+            <main class="relative z-10 min-h-screen px-5 py-6 sm:px-8 lg:px-14">
+                <header class="mx-auto flex w-full max-w-7xl items-center justify-between bg-black/88 px-5 py-4 shadow-2xl shadow-black/20 backdrop-blur-sm sm:px-7">
+                    <a href="{{ route('home') }}" class="inline-flex min-w-0 items-center gap-3">
+                        <span class="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/15 bg-white/10">
                             <img src="{{ asset('logo.png') }}" class="h-8 w-8 object-contain" alt="Logo">
                         </span>
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-[0.35em]" style="color: #4D774E;">PT INDO MODA RAYA</p>
-                            <p class="text-base font-black mt-0.5 leading-none" style="font-family: 'Montserrat', sans-serif;">{{ config('app.name', 'Laporan Keuangan') }}</p>
-                        </div>
-                    </div>
+                        <span class="min-w-0">
+                            <span class="block text-[10px] font-semibold uppercase tracking-[0.28em] text-[#F1B24A]">PT INDO MODA RAYA</span>
+                            <span class="block truncate text-base font-black leading-tight text-white" style="font-family: 'Montserrat', sans-serif;">{{ config('app.name', 'Laporan Keuangan') }}</span>
+                        </span>
+                    </a>
+                </header>
 
-                    {{ $slot }}
+                <div class="mx-auto grid min-h-[calc(100vh-6.5rem)] w-full max-w-7xl items-center gap-10 py-10 lg:grid-cols-[1fr_30rem] lg:gap-14">
+                    <section class="max-w-4xl text-white">
+                        <p class="text-sm font-bold uppercase tracking-[0.36em]" style="color: #F1B24A;">Ekspedisi Barang</p>
+                        <h1 class="mt-6 max-w-4xl text-5xl font-black leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl" style="font-family: 'Montserrat', sans-serif;">
+                            Kelola laporan operasional perusahaan dari satu tempat.
+                        </h1>
+                        <p class="mt-6 max-w-3xl text-xl font-semibold leading-9 text-white/90 sm:text-2xl sm:leading-10">
+                            Pantau transaksi, pengeluaran, armada, dan rekap biaya lapangan dengan tampilan yang siap dipakai setiap hari.
+                        </p>
+
+                        <div class="mt-9 flex flex-wrap gap-3">
+                            <span class="border-l-4 border-[#F1B24A] bg-black/35 px-5 py-3 text-sm font-black text-white backdrop-blur-sm">Transaksi cepat</span>
+                            <span class="border-l-4 border-[#F1B24A] bg-black/35 px-5 py-3 text-sm font-black text-white backdrop-blur-sm">Data armada rapi</span>
+                            <span class="border-l-4 border-[#F1B24A] bg-black/35 px-5 py-3 text-sm font-black text-white backdrop-blur-sm">Laporan siap baca</span>
+                        </div>
+                    </section>
+
+                    <section class="flex justify-center lg:justify-end">
+                        <div class="w-full rounded-[1.75rem] bg-white px-6 py-8 shadow-2xl shadow-black/30 sm:px-8">
+                            {{ $slot }}
+                        </div>
+                    </section>
                 </div>
-            </div>
-            </div>
+            </main>
         </div>
     </body>
 </html>

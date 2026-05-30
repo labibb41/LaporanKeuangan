@@ -20,7 +20,7 @@ class OperasionalController extends Controller
 
         $agregatGeneral = $this->generalAggregates($bulan, $tahun);
         $rekap = OperasionalRekap::query()
-            ->with(['kapal', 'telly'])
+            ->with(['kapal', 'telly', 'creator', 'updater'])
             ->where('bulan', $bulan)
             ->where('tahun', $tahun)
             ->get()
@@ -54,6 +54,12 @@ class OperasionalController extends Controller
                     'keterangan' => $manual?->keterangan,
                     'general_count' => $general['jumlah_baris'] ?? 0,
                     'manual_id' => $manual?->id,
+                    'created_by' => $manual?->created_by,
+                    'updated_by' => $manual?->updated_by,
+                    'created_at' => $manual?->created_at,
+                    'updated_at' => $manual?->updated_at,
+                    'creator' => $manual?->creator,
+                    'updater' => $manual?->updater,
                 ];
             })
             ->sortBy('kapal_nama')

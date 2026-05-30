@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-label="Background gudang ekspedisi barang">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#203849"/>
+      <stop offset=".52" stop-color="#59736b"/>
+      <stop offset="1" stop-color="#f0a75d"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#13241f"/>
+      <stop offset=".55" stop-color="#263d35"/>
+      <stop offset="1" stop-color="#5d4b34"/>
+    </linearGradient>
+    <linearGradient id="warehouse" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e9ece6"/>
+      <stop offset=".55" stop-color="#b7c0b7"/>
+      <stop offset="1" stop-color="#6c7a73"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#243e4b" stop-opacity=".82"/>
+      <stop offset="1" stop-color="#101f22" stop-opacity=".92"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#07110f" flood-opacity=".35"/>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+  <circle cx="1580" cy="220" r="240" fill="#f3b05f" opacity=".26"/>
+  <circle cx="1640" cy="190" r="120" fill="#fff0bb" opacity=".22"/>
+
+  <path d="M0 604 C270 560 430 632 640 590 C905 536 1060 505 1300 574 C1515 636 1690 590 1920 540 L1920 1080 L0 1080 Z" fill="#11221e" opacity=".42"/>
+  <path d="M0 675 C340 650 520 722 820 665 C1120 607 1360 662 1570 700 C1720 728 1840 710 1920 686 L1920 1080 L0 1080 Z" fill="url(#floor)"/>
+
+  <g filter="url(#softShadow)">
+    <path d="M270 348 L830 230 L1498 382 L1498 786 L270 786 Z" fill="#d6dbd3"/>
+    <path d="M830 230 L1498 382 L1498 444 L830 300 Z" fill="#8e9c94"/>
+    <path d="M270 348 L830 230 L830 300 L270 420 Z" fill="#f2f3ee"/>
+    <path d="M330 434 H1446 V786 H330 Z" fill="url(#warehouse)"/>
+    <path d="M390 486 H650 V786 H390 Z" fill="url(#glass)"/>
+    <path d="M696 486 H956 V786 H696 Z" fill="url(#glass)"/>
+    <path d="M1002 486 H1262 V786 H1002 Z" fill="url(#glass)"/>
+    <path d="M1308 486 H1394 V786 H1308 Z" fill="#23372f"/>
+    <g stroke="#f1b24a" stroke-width="8" opacity=".85">
+      <path d="M420 548 H620"/>
+      <path d="M726 548 H926"/>
+      <path d="M1032 548 H1232"/>
+      <path d="M420 630 H620"/>
+      <path d="M726 630 H926"/>
+      <path d="M1032 630 H1232"/>
+    </g>
+    <g fill="#f5c46d" opacity=".38">
+      <rect x="424" y="516" width="74" height="170" rx="6"/>
+      <rect x="730" y="516" width="74" height="170" rx="6"/>
+      <rect x="1036" y="516" width="74" height="170" rx="6"/>
+    </g>
+  </g>
+
+  <g transform="translate(1170 707)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="330" height="94" rx="12" fill="#f6f0dd"/>
+    <rect x="210" y="25" width="118" height="69" rx="8" fill="#d85f37"/>
+    <rect x="24" y="22" width="156" height="36" rx="4" fill="#164a41"/>
+    <rect x="229" y="39" width="54" height="28" rx="3" fill="#223b47"/>
+    <circle cx="72" cy="101" r="30" fill="#111827"/>
+    <circle cx="72" cy="101" r="12" fill="#7a8790"/>
+    <circle cx="256" cy="101" r="30" fill="#111827"/>
+    <circle cx="256" cy="101" r="12" fill="#7a8790"/>
+  </g>
+
+  <g transform="translate(350 714)" opacity=".96">
+    <rect x="0" y="0" width="112" height="72" rx="5" fill="#d99532"/>
+    <rect x="130" y="-18" width="120" height="90" rx="5" fill="#c66a37"/>
+    <rect x="270" y="10" width="106" height="62" rx="5" fill="#e5b04f"/>
+    <path d="M-22 72 H430" stroke="#f1b24a" stroke-width="10" opacity=".35"/>
+  </g>
+
+  <g opacity=".28" fill="none" stroke="#ffffff" stroke-width="2">
+    <path d="M0 892 H1920"/>
+    <path d="M120 820 H1820"/>
+    <path d="M330 1080 L720 812"/>
+    <path d="M805 1080 L960 812"/>
+    <path d="M1390 1080 L1120 812"/>
+  </g>
+
+  <rect width="1920" height="1080" fill="#031411" opacity=".24"/>
+</svg>

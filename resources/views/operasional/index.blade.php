@@ -65,8 +65,32 @@
                 </thead>
                 <tbody class="divide-y divide-stone-100 bg-white">
                     @forelse ($barisOperasional as $item)
-                        <tr>
-                            <td class="px-4 py-3">
+                        @php
+                            $isRecentlyCreated = $item->created_by 
+                                && $item->created_by !== auth()->id() 
+                                && $item->created_at->gt(now()->subMinutes(30))
+                                && !$item->updated_by;
+                            
+                            $isRecentlyUpdated = $item->updated_by 
+                                && $item->updated_by !== auth()->id() 
+                                && $item->updated_at->gt(now()->subMinutes(30));
+
+                            $rowClass = 'transition-all duration-300';
+                            $rowTooltip = '';
+                            $borderCellClass = '';
+                            
+                            if ($isRecentlyUpdated) {
+                                $rowClass .= ' !bg-rose-50/80 hover:!bg-rose-100/95';
+                                $borderCellClass = 'border-l-4 border-l-rose-500 pl-2';
+                                $rowTooltip = 'Telah diubah oleh ' . ($item->updater->name ?? 'Admin') . ' pada ' . $item->updated_at->timezone('Asia/Jakarta')->format('H:i');
+                            } elseif ($isRecentlyCreated) {
+                                $rowClass .= ' !bg-emerald-50/80 hover:!bg-emerald-100/95';
+                                $borderCellClass = 'border-l-4 border-l-emerald-500 pl-2';
+                                $rowTooltip = 'Telah ditambahkan oleh ' . ($item->creator->name ?? 'Admin') . ' pada ' . $item->created_at->timezone('Asia/Jakarta')->format('H:i');
+                            }
+                        @endphp
+                        <tr class="{{ $rowClass }}" {!! $rowTooltip ? 'title="' . e($rowTooltip) . '"' : '' !!}>
+                            <td class="px-4 py-3 {{ $borderCellClass }}">
                                 <p class="font-semibold text-stone-900">{{ $item->kapal_nama }}</p>
                                 <p class="text-xs text-stone-500">{{ $item->general_count }} baris dari general</p>
                             </td>

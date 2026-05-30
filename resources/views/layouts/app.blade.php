@@ -69,16 +69,35 @@
                                 <span class="text-xs font-semibold text-stone-600">{{ now()->translatedFormat('j M Y') }}</span>
                             </div>
 
-                            {{-- Notification Bell with Red Badge --}}
-                            <button type="button" class="relative rounded-xl border border-stone-200 bg-white p-2 text-stone-500 hover:bg-stone-50 hover:text-stone-800 transition">
-                                <svg class="h-4.5 w-4.5" style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                                </svg>
-                                <span class="absolute top-1.5 right-1.5 flex h-2 w-2">
-                                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75"></span>
-                                    <span class="relative inline-flex h-2 w-2 rounded-full bg-rose-500"></span>
-                                </span>
-                            </button>
+                            {{-- Notification Bell --}}
+                            <div class="relative">
+                                <button id="activityBell" type="button" class="relative rounded-xl border border-stone-200 bg-white p-2 text-stone-500 transition hover:bg-stone-50 hover:text-stone-800">
+                                    <svg class="h-4.5 w-4.5" style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                    </svg>
+                                    <span id="activityPulse" class="absolute right-1.5 top-1.5 hidden h-2 w-2">
+                                        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75"></span>
+                                        <span class="relative inline-flex h-2 w-2 rounded-full bg-rose-500"></span>
+                                    </span>
+                                    <span id="activityCount" class="absolute -right-1.5 -top-1.5 hidden min-w-5 rounded-full bg-rose-600 px-1.5 py-0.5 text-center text-[10px] font-black leading-none text-white">0</span>
+                                </button>
+
+                                <div id="activityDropdown" class="absolute right-0 z-50 mt-2 hidden w-80 overflow-hidden rounded-2xl border border-stone-100 bg-white shadow-xl ring-1 ring-black/5">
+                                    <div class="flex items-center justify-between border-b border-stone-100 px-4 py-3">
+                                        <div>
+                                            <p class="text-sm font-black text-stone-950">Notifikasi</p>
+                                            <p class="text-[11px] text-stone-500">Perubahan terbaru dari admin lain</p>
+                                        </div>
+                                        <span id="activityStatus" class="rounded-full bg-stone-100 px-2 py-1 text-[10px] font-bold text-stone-500">0 baru</span>
+                                    </div>
+                                    <div id="activityList" class="max-h-80 overflow-y-auto p-2">
+                                        <div id="activityEmpty" class="px-4 py-8 text-center">
+                                            <p class="text-sm font-semibold text-stone-700">Belum ada notifikasi baru</p>
+                                            <p class="mt-1 text-xs text-stone-400">Perubahan admin lain akan muncul di sini.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                             {{-- Dropdown Profile (Alpine.js) --}}
                             <div x-data="{ dropdownOpen: false }" @click.outside="dropdownOpen = false" class="relative">
@@ -210,6 +229,15 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 let lastChecked = "{{ now()->toIso8601String() }}";
+                let unreadCount = 0;
+                let activityItems = [];
+                const activityBell = document.getElementById('activityBell');
+                const activityDropdown = document.getElementById('activityDropdown');
+                const activityPulse = document.getElementById('activityPulse');
+                const activityCount = document.getElementById('activityCount');
+                const activityStatus = document.getElementById('activityStatus');
+                const activityList = document.getElementById('activityList');
+                const activityEmpty = document.getElementById('activityEmpty');
 
                 const ActivityToast = Swal.mixin({
                     toast: true,
@@ -222,6 +250,108 @@
                         toast.onmouseenter = Swal.stopTimer;
                         toast.onmouseleave = Swal.resumeTimer;
                     }
+                });
+
+                function actionTitle(action) {
+                    if (action === 'created') return 'Data Baru';
+                    if (action === 'updated') return 'Data Diperbarui';
+                    if (action === 'deleted') return 'Data Dihapus';
+                    return 'Aktivitas Baru';
+                }
+
+                function actionBadgeClass(action) {
+                    if (action === 'created') return 'bg-emerald-50 text-emerald-700';
+                    if (action === 'updated') return 'bg-amber-50 text-amber-700';
+                    if (action === 'deleted') return 'bg-rose-50 text-rose-700';
+                    return 'bg-slate-100 text-slate-700';
+                }
+
+                function escapeHtml(value) {
+                    return String(value ?? '').replace(/[&<>"']/g, function(char) {
+                        return {
+                            '&': '&amp;',
+                            '<': '&lt;',
+                            '>': '&gt;',
+                            '"': '&quot;',
+                            "'": '&#039;'
+                        }[char];
+                    });
+                }
+
+                function updateBadge() {
+                    if (!activityPulse || !activityCount || !activityStatus) return;
+
+                    const hasUnread = unreadCount > 0;
+                    activityPulse.classList.toggle('hidden', !hasUnread);
+                    activityCount.classList.toggle('hidden', !hasUnread);
+                    activityCount.textContent = unreadCount > 9 ? '9+' : unreadCount;
+                    activityStatus.textContent = `${unreadCount} baru`;
+                    activityStatus.className = hasUnread
+                        ? 'rounded-full bg-rose-50 px-2 py-1 text-[10px] font-bold text-rose-700'
+                        : 'rounded-full bg-stone-100 px-2 py-1 text-[10px] font-bold text-stone-500';
+                }
+
+                function renderActivityList() {
+                    if (!activityList || !activityEmpty) return;
+
+                    activityList.querySelectorAll('[data-activity-item]').forEach(item => item.remove());
+                    activityEmpty.classList.toggle('hidden', activityItems.length > 0);
+
+                    activityItems.slice(0, 8).forEach(log => {
+                        const link = document.createElement('a');
+                        link.href = log.url || '#';
+                        link.dataset.activityItem = 'true';
+                        link.className = 'block rounded-xl px-3 py-3 transition hover:bg-stone-50';
+                        link.innerHTML = `
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2">
+                                        <span class="rounded-full px-2 py-0.5 text-[10px] font-black ${actionBadgeClass(log.action)}">${escapeHtml(log.model_label || 'Data')}</span>
+                                        <span class="text-[10px] font-semibold text-stone-400">${escapeHtml(log.created_at_human || '')}</span>
+                                    </div>
+                                    <p class="mt-2 text-xs font-black text-stone-900">${escapeHtml(actionTitle(log.action))}</p>
+                                    <p class="mt-1 text-xs leading-5 text-stone-500">${escapeHtml(log.description)}</p>
+                                </div>
+                            </div>
+                        `;
+                        activityList.appendChild(link);
+                    });
+                }
+
+                function addActivities(logs) {
+                    logs.forEach(log => {
+                        if (activityItems.some(item => item.id === log.id)) return;
+
+                        activityItems.unshift(log);
+                        unreadCount += 1;
+
+                        let icon = 'info';
+                        if (log.action === 'created') icon = 'success';
+                        if (log.action === 'deleted') icon = 'warning';
+
+                        ActivityToast.fire({
+                            icon: icon,
+                            title: actionTitle(log.action),
+                            text: log.description
+                        });
+                    });
+
+                    activityItems = activityItems.slice(0, 12);
+                    updateBadge();
+                    renderActivityList();
+                }
+
+                activityBell?.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    activityDropdown?.classList.toggle('hidden');
+                    unreadCount = 0;
+                    updateBadge();
+                });
+
+                document.addEventListener('click', function(event) {
+                    if (!activityDropdown || !activityBell) return;
+                    if (activityDropdown.contains(event.target) || activityBell.contains(event.target)) return;
+                    activityDropdown.classList.add('hidden');
                 });
 
                 function checkActivity() {
@@ -238,29 +368,20 @@
                     .then(data => {
                         if (data.success && data.logs && data.logs.length > 0) {
                             let shouldReload = false;
-                            data.logs.forEach(log => {
-                                let icon = 'info';
-                                if (log.action === 'created') icon = 'success';
-                                if (log.action === 'deleted') icon = 'warning';
-
-                                ActivityToast.fire({
-                                    icon: icon,
-                                    title: log.action === 'created' ? 'Transaksi Baru!' : (log.action === 'updated' ? 'Data Diperbarui!' : 'Data Dihapus!'),
-                                    text: log.description
-                                });
-                                shouldReload = true;
-                            });
+                            addActivities(data.logs);
+                            shouldReload = true;
 
                             if (shouldReload) {
                                 const isTransaksiPage = window.location.pathname.includes('/transaksi-operasional');
+                                const isOperasionalPage = window.location.pathname === '/operasional' || window.location.pathname.endsWith('/operasional');
                                 const modalEl = document.querySelector('[x-show="showFormModal"]');
                                 const isEditing = modalEl && modalEl.style.display !== 'none';
                                 
                                 const previewEl = document.querySelector('[x-show="showPreviewModal"]');
                                 const isPreviewing = previewEl && previewEl.style.display !== 'none';
 
-                                if (isTransaksiPage && !isEditing) {
-                                    if (isPreviewing) {
+                                if ((isTransaksiPage && !isEditing) || isOperasionalPage) {
+                                    if (isTransaksiPage && isPreviewing) {
                                         const alpineEl = document.querySelector('[x-data]');
                                         if (alpineEl && alpineEl.__x && alpineEl.__x.$data) {
                                             alpineEl.__x.$data.needsReload = true;
@@ -279,6 +400,9 @@
                     })
                     .catch(err => console.debug('Polling activity logs error:', err));
                 }
+
+                updateBadge();
+                renderActivityList();
 
                 // Poll every 5 seconds
                 setInterval(checkActivity, 5000);

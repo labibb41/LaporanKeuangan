@@ -150,8 +150,8 @@
 
                 {{-- Mobile: User info (Reference Card Style) --}}
                 <div class="border-t border-white/10 px-4 py-4 bg-black/10">
-                    <div class="flex items-center justify-between gap-2.5 rounded-2xl bg-white/5 border border-white/10 p-3">
-                        <div class="flex items-center gap-2.5">
+                    <a href="{{ route('profile.edit') }}" class="group flex items-center gap-2.5 rounded-2xl border border-white/10 bg-white/5 p-3 transition-all hover:border-[#F1B24A]/40 hover:bg-white/10">
+                        <div class="flex items-center gap-2.5 min-w-0">
                             @php
                                 $customAvatarPath = public_path('avatar_' . Auth::id() . '.png');
                                 $customAvatarUrl = asset('avatar_' . Auth::id() . '.png');
@@ -177,12 +177,12 @@
                                 <p class="truncate text-[10px] mt-0.5" style="color: rgba(157,200,141,0.60);">{{ Auth::user()->email }}</p>
                             </div>
                         </div>
-                        <a href="{{ route('profile.edit') }}" class="text-white hover:text-amber-200 transition-colors p-1" title="Edit Profil">
-                            <svg class="h-4 w-4" style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+                        <span class="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-white/10 text-[#F1B24A] transition group-hover:bg-[#F1B24A] group-hover:text-stone-950">
+                            <svg class="h-3.5 w-3.5" style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                             </svg>
-                        </a>
-                    </div>
+                        </span>
+                    </a>
                     <div class="mt-2.5">
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -299,8 +299,8 @@
 
     {{-- Desktop: User info (Reference Card Style) --}}
     <div class="px-4 py-4 bg-black/10">
-        <div class="flex items-center justify-between gap-2.5 rounded-2xl bg-white/5 border border-white/10 p-3">
-            <div class="flex items-center gap-2.5">
+        <a href="{{ route('profile.edit') }}" class="group flex items-center gap-2.5 rounded-2xl border border-white/10 bg-white/5 p-3 transition-all hover:border-[#F1B24A]/40 hover:bg-white/10">
+            <div class="flex min-w-0 items-center gap-2.5">
                 @php
                     $customAvatarPath = public_path('avatar_' . Auth::id() . '.png');
                     $customAvatarUrl = asset('avatar_' . Auth::id() . '.png');
@@ -326,12 +326,12 @@
                     <p class="truncate text-[10px] mt-0.5 leading-none" style="color: rgba(157,200,141,0.60);">{{ Auth::user()->email }}</p>
                 </div>
             </div>
-            <a href="{{ route('profile.edit') }}" class="text-white hover:text-amber-200 transition-colors p-1" title="Edit Profil">
-                <svg class="h-4 w-4 text-white" style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+            <span class="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-white/10 text-[#F1B24A] transition group-hover:bg-[#F1B24A] group-hover:text-stone-950">
+                <svg class="h-3.5 w-3.5" style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                 </svg>
-            </a>
-        </div>
+            </span>
+        </a>
         <div class="mt-2.5">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf

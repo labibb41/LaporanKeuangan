@@ -1,32 +1,21 @@
 <section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-            {{ __('Profile Information') }}
-        </h2>
-
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {{ __("Update your account's profile information and email address.") }}
-        </p>
-    </header>
-
     <form id="send-verification" method="post" action="{{ route('verification.send') }}">
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6" enctype="multipart/form-data">
+    <form method="post" action="{{ route('profile.update') }}" class="space-y-5" enctype="multipart/form-data">
         @csrf
         @method('patch')
 
-        {{-- Profile Photo Upload Block --}}
-        <div class="space-y-2">
-            <label for="avatar" class="block text-xs font-semibold text-stone-700">Foto Profil</label>
-            <div class="flex items-center gap-4">
+        <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+            <label for="avatar" class="block text-xs font-black uppercase tracking-wider text-slate-700">Foto Profil</label>
+            <div class="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center">
                 @php
                     $customAvatarPath = public_path('avatar_' . $user->id . '.png');
                     $customAvatarUrl = asset('avatar_' . $user->id . '.png');
                     $defaultAvatarPath = public_path('avatar.png');
                     $defaultAvatarUrl = asset('avatar.png');
-                    
+
                     $avatarUrl = null;
                     if (file_exists($customAvatarPath)) {
                         $avatarUrl = $customAvatarUrl;
@@ -34,57 +23,60 @@
                         $avatarUrl = $defaultAvatarUrl;
                     }
                 @endphp
-                
+
                 @if ($avatarUrl)
-                    <img src="{{ $avatarUrl }}?v={{ time() }}" class="h-16 w-16 rounded-full object-cover border-2 border-blue-100 shadow-sm" style="width: 64px; height: 64px;" alt="Avatar Current">
+                    <img src="{{ $avatarUrl }}?v={{ time() }}" class="h-20 w-20 rounded-2xl border-4 border-white object-cover shadow-sm" style="width: 80px; height: 80px;" alt="Avatar Current">
                 @else
-                    <span class="flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-xl font-black text-blue-600 border-2 border-blue-100 shadow-sm" style="width: 64px; height: 64px;">
+                    <span class="flex h-20 w-20 items-center justify-center rounded-2xl border-4 border-white bg-emerald-50 text-2xl font-black text-[#164A41] shadow-sm" style="width: 80px; height: 80px;">
                         {{ strtoupper(str($user->name)->take(1)) }}
                     </span>
                 @endif
-                
-                <div class="flex-1">
-                    <input type="file" id="avatar" name="avatar" accept="image/*" class="w-full text-xs text-stone-500 file:mr-4 file:py-1.5 file:px-3.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all cursor-pointer">
-                    <p class="mt-1 text-[10px] text-stone-400">Pilih gambar JPEG, PNG atau JPG (maksimal 2MB).</p>
+
+                <div class="min-w-0 flex-1">
+                    <input type="file" id="avatar" name="avatar" accept="image/*" class="w-full cursor-pointer rounded-xl border border-slate-200 bg-white text-xs text-slate-500 shadow-sm file:mr-4 file:border-0 file:bg-[#164A41] file:px-4 file:py-3 file:text-xs file:font-black file:text-white hover:file:bg-[#0f3830]">
+                    <p class="mt-2 text-[11px] text-slate-500">Format JPEG, PNG, atau JPG. Ukuran maksimal 2MB.</p>
                 </div>
             </div>
             @error('avatar')
-                <p class="mt-1 text-[10px] text-rose-600 font-semibold">{{ $message }}</p>
+                <p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>
             @enderror
         </div>
 
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <x-input-label for="name" value="Nama Admin" />
+                <x-text-input id="name" name="name" type="text" class="field-white mt-1 block w-full py-3 text-sm" :value="old('name', $user->name)" required autofocus autocomplete="name" />
+                <x-input-error class="mt-2" :messages="$errors->get('name')" />
+            </div>
+
+            <div>
+                <x-input-label for="email" value="Email" />
+                <x-text-input id="email" name="email" type="email" class="field-white mt-1 block w-full py-3 text-sm" :value="old('email', $user->email)" required autocomplete="username" />
+                <x-input-error class="mt-2" :messages="$errors->get('email')" />
+            </div>
         </div>
 
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
+        @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
+            <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+                <p class="text-xs font-medium text-amber-800">
+                    Email Anda belum diverifikasi.
+                    <button form="send-verification" class="font-bold underline hover:text-amber-950">
+                        Kirim ulang email verifikasi.
+                    </button>
+                </p>
 
-            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-                <div>
-                    <p class="text-sm mt-2 text-gray-800 dark:text-gray-200">
-                        {{ __('Your email address is unverified.') }}
-
-                        <button form="send-verification" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                            {{ __('Click here to re-send the verification email.') }}
-                        </button>
+                @if (session('status') === 'verification-link-sent')
+                    <p class="mt-2 text-xs font-semibold text-green-700">
+                        Link verifikasi baru sudah dikirim ke email Anda.
                     </p>
-
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600 dark:text-green-400">
-                            {{ __('A new verification link has been sent to your email address.') }}
-                        </p>
-                    @endif
-                </div>
-            @endif
-        </div>
+                @endif
+            </div>
+        @endif
 
         <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+            <x-primary-button class="rounded-xl bg-[#164A41] px-5 py-3 hover:bg-[#0f3830] focus:ring-[#164A41]">
+                Simpan Profil
+            </x-primary-button>
 
             @if (session('status') === 'profile-updated')
                 <p
@@ -92,8 +84,8 @@
                     x-show="show"
                     x-transition
                     x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600 dark:text-gray-400"
-                >{{ __('Saved.') }}</p>
+                    class="text-sm font-semibold text-emerald-700"
+                >Tersimpan.</p>
             @endif
         </div>
     </form>

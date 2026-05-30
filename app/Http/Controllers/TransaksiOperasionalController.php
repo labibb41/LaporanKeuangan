@@ -8,6 +8,7 @@ use App\Models\Karyawan;
 use App\Models\Kendaraan;
 use App\Models\Paguyuban;
 use App\Models\TransaksiOperasional;
+use App\Support\ActivityLogFormatter;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -174,31 +175,39 @@ class TransaksiOperasionalController extends Controller
     public function latestActivity(Request $request): JsonResponse
     {
         $since = $request->query('since');
+        $afterId = (int) $request->query('after_id', 0);
 
         $query = \App\Models\ActivityLog::query()
             ->with('user')
-            ->where('user_id', '!=', auth()->id())
-            ->latest();
+            ->where('user_id', '!=', auth()->id());
 
-        if ($since) {
+        if ($afterId > 0) {
+            $query->where('id', '>', $afterId);
+        } elseif ($since) {
             try {
                 $query->where('created_at', '>', \Carbon\Carbon::parse($since));
             } catch (\Exception $e) {
                 $query->where('created_at', '>', now()->subSeconds(15));
             }
         } else {
-            // Default: only fetch logs created in the last 15 seconds to avoid flooding old notifications on initial load
-            $query->where('created_at', '>', now()->subSeconds(15));
+            $query->where('created_at', '>', now()->subDay());
         }
 
-        $logs = $query->get()->map(function ($log) {
+        $logs = $query
+            ->oldest('id')
+            ->limit(20)
+            ->get()
+            ->map(function ($log) {
             return [
                 'id' => $log->id,
                 'model_id' => $log->model_id,
+                'model_label' => ActivityLogFormatter::labelFor($log->model_type),
                 'description' => $log->description,
                 'action' => $log->action,
                 'user_name' => $log->user->name ?? 'Admin',
                 'created_at' => $log->created_at->toIso8601String(),
+                'created_at_human' => $log->created_at->timezone('Asia/Jakarta')->format('H:i'),
+                'url' => $this->activityUrl($log),
             ];
         });
 
@@ -207,6 +216,24 @@ class TransaksiOperasionalController extends Controller
             'logs' => $logs,
             'timestamp' => now()->toIso8601String(),
         ]);
+    }
+
+    private function activityUrl(\App\Models\ActivityLog $log): string
+    {
+        if ($log->action !== 'deleted' && $log->model_type === TransaksiOperasional::class) {
+            return route('transaksi-operasional.show', $log->model_id);
+        }
+
+        return match ($log->model_type) {
+            \App\Models\Pemilik::class => route('pemilik.index'),
+            \App\Models\Kendaraan::class => route('kendaraan.index'),
+            \App\Models\Kapal::class => route('kapal.index'),
+            \App\Models\Karyawan::class => route('karyawan.index'),
+            \App\Models\Pengeluaran::class => route('pengeluaran.index'),
+            \App\Models\OperasionalRekap::class => route('operasional.index'),
+            \App\Models\User::class => route('admin.users.index'),
+            default => route('dashboard'),
+        };
     }
 
     private function formData(): array

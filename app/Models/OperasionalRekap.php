@@ -25,6 +25,8 @@ class OperasionalRekap extends Model
         'telly_id',
         'tanggal_kegiatan',
         'keterangan',
+        'created_by',
+        'updated_by',
     ];
 
     protected function casts(): array
@@ -36,6 +38,31 @@ class OperasionalRekap extends Model
             'terpal' => 'decimal:2',
             'operasional' => 'decimal:2',
         ];
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updater(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function ($model) {
+            if (auth()->check()) {
+                $model->created_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($model) {
+            if (auth()->check()) {
+                $model->updated_by = auth()->id();
+            }
+        });
     }
 
     public function kapal(): BelongsTo
