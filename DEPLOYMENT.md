@@ -353,3 +353,64 @@ Jika Cloudflare Tunnel tidak membuka aplikasi:
 - Pastikan aplikasi lokal jalan di port yang sama dengan konfigurasi tunnel.
 - Cek `APP_URL`.
 - Cek service target: `http://127.0.0.1:80` atau `http://127.0.0.1:8000`.
+
+## Deploy Ulang Dari Git Ke Docker
+
+Jika tampilan lokal berbeda dengan domain production, biasanya penyebabnya salah satu dari ini:
+
+- Server belum `git pull` commit terbaru.
+- Image Docker masih memakai build lama/cache.
+- Asset Vite belum dibuild ulang di image.
+- Laravel masih memakai cache view/config lama.
+- Browser atau Cloudflare masih menyimpan cache halaman/asset lama.
+
+Jalankan dari server:
+
+```bash
+cd ~/LaporanKeuangan
+git pull
+sudo docker compose -f docker-compose.prod.yml build --no-cache app
+sudo docker compose -f docker-compose.prod.yml up -d --force-recreate
+sudo docker compose -f docker-compose.prod.yml exec app php artisan optimize:clear
+sudo docker compose -f docker-compose.prod.yml exec app php artisan optimize
+```
+
+Cek hasil lokal server:
+
+```bash
+curl -I http://127.0.0.1:8080
+```
+
+Jika domain masih menampilkan asset lama, aktifkan Cloudflare Development Mode sementara atau purge cache:
+
+```text
+Cloudflare Dashboard -> Caching -> Configuration -> Purge Cache
+```
+
+## Backup Dan Restore Database MySQL
+
+Database production kemungkinan berisi data sensitif. Folder `database/backups/` disediakan untuk tempat dump, tetapi file `*.sql` dan `*.sql.gz` diabaikan oleh Git secara default agar tidak tidak sengaja ikut commit.
+
+Backup dari server:
+
+```bash
+cd ~/LaporanKeuangan
+mkdir -p database/backups
+mysqldump -h 127.0.0.1 -P 3306 -u laporan_user -p laporan_keuangan > database/backups/laporan_keuangan_$(date +%F_%H%M%S).sql
+gzip database/backups/laporan_keuangan_*.sql
+```
+
+Jika `mysqldump` belum ada:
+
+```bash
+sudo apt-get update
+sudo apt-get install mysql-client
+```
+
+Restore ke database kosong atau database yang ingin ditimpa:
+
+```bash
+gunzip -c database/backups/NAMA_FILE.sql.gz | mysql -h 127.0.0.1 -P 3306 -u laporan_user -p laporan_keuangan
+```
+
+Jika benar-benar ingin menyimpan dump ke repo, lakukan secara sadar karena file backup bisa berisi data login, data transaksi, dan data pribadi. Lebih aman simpan dump di tempat backup private atau commit file terenkripsi.
