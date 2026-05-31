@@ -46,6 +46,11 @@
                     </select>
                 </div>
 
+                <div class="flex items-center gap-2 mt-2">
+                    <input type="checkbox" name="is_active" value="1" checked class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-600" id="is_active_create">
+                    <label for="is_active_create" class="label !mb-0" style="margin-bottom:0;">Akun Aktif (Bisa Login)</label>
+                </div>
+
                 <div class="pt-1">
                     <button type="submit" class="btn btn-compact w-full font-semibold text-white"
                             style="background: linear-gradient(135deg, #164A41, #4D774E);">
@@ -72,6 +77,7 @@
                             <th>Nama</th>
                             <th>Email</th>
                             <th>Role</th>
+                            <th>Status</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -94,6 +100,13 @@
                                     @endif
                                 </td>
                                 <td x-show="!editing">
+                                    @if($user->is_active)
+                                        <span class="badge" style="background:#e8f5e0; color:#164A41;">Aktif</span>
+                                    @else
+                                        <span class="badge" style="background:#fee2e2; color:#991b1b;">Tidak Aktif</span>
+                                    @endif
+                                </td>
+                                <td x-show="!editing">
                                     <div class="flex gap-1.5">
                                         <button @click="editing = true"
                                             class="btn btn-compact btn-soft text-[10px]">Edit</button>
@@ -108,17 +121,21 @@
                                 </td>
 
                                 {{-- Edit Mode --}}
-                                <td x-show="editing" x-cloak colspan="3">
+                                <td x-show="editing" x-cloak colspan="4">
                                     <form method="POST" action="{{ route('admin.users.update', $user) }}"
                                           class="flex flex-wrap items-center gap-2 py-1">
                                         @csrf @method('PUT')
-                                        <input type="text" name="name" value="{{ $user->name }}" class="field w-32" required>
-                                        <input type="email" name="email" value="{{ $user->email }}" class="field w-40" required>
-                                        <input type="password" name="password" class="field w-32" placeholder="Password baru (opsional)">
-                                        <select name="role" class="field w-28" required>
+                                        <input type="text" name="name" value="{{ $user->name }}" class="field w-28" required>
+                                        <input type="email" name="email" value="{{ $user->email }}" class="field w-32" required>
+                                        <input type="password" name="password" class="field w-28" placeholder="Password (opsional)">
+                                        <select name="role" class="field w-20" required>
                                             <option value="admin" @selected($user->role === 'admin')>Admin</option>
                                             <option value="hrd" @selected($user->role === 'hrd')>HRD</option>
                                         </select>
+                                        <div class="flex items-center gap-1">
+                                            <input type="checkbox" name="is_active" value="1" @checked($user->is_active) class="rounded border-slate-300 text-emerald-600">
+                                            <span class="text-[10px] font-semibold text-slate-700">Aktif</span>
+                                        </div>
                                         <button type="submit" class="btn btn-compact btn-success">Simpan</button>
                                         <button type="button" @click="editing = false" class="btn btn-compact btn-soft">Batal</button>
                                     </form>

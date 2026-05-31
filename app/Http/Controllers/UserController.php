@@ -27,6 +27,8 @@ class UserController extends Controller
             'role'     => ['required', 'in:admin,hrd'],
         ]);
 
+        $validated['is_active'] = $request->boolean('is_active');
+
         User::create($validated);
 
         return back()->with('status', 'Akun pengguna berhasil dibuat.');
@@ -39,6 +41,8 @@ class UserController extends Controller
             'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
             'role'  => ['required', 'in:admin,hrd'],
         ]);
+
+        $validated['is_active'] = $request->boolean('is_active');
 
         if ($request->filled('password')) {
             $request->validate(['password' => [Password::min(8)]]);
